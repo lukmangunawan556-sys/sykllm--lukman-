@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Address Mastery — Petualangan Teknisi Jaringan (Kelompok 2)</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Cyberpunk Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#0a0e17',
+                            card: '#111827',
+                            border: '#1f2937',
+                            neon: '#00f0ff',
+                            purple: '#a855f7',
+                            green: '#10b981',
+                            pink: '#ec4899',
+                            yellow: '#f59e0b',
+                            red: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Fira Code', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0e17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+
+        /* Scanline Effect */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+        }
+
+        /* Neon Glows */
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+        .glow-purple {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+        .glow-green {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+        .text-glow-cyan {
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
+
+        /* Custom Animations */
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .animate-pulse-fast {
+            animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes packet-move {
+            0% { left: 10%; opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { left: 85%; opacity: 0; }
+        }
+        .animate-packet {
+            position: absolute;
+            animation: packet-move 2s linear infinite;
+        }
+
+        /* Responsive Canvas / Network Map */
+        .network-line {
+            stroke-dasharray: 8;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -16; }
+        }
+    </style>
+</head>
+<body class="bg-cyber-bg text-gray-100 font-rajdhani min-h-screen flex flex-col justify-between selection:bg-cyber-neon selection:text-black scanlines">
+
+    <!-- HEADER BAR -->
+    <header class="bg-cyber-card/90 border-b border-cyber-neon/30 backdrop-blur sticky top-0 z-50 px-4 py-2.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-cyber-neon/10 border border-cyber-neon flex items-center justify-center text-cyber-neon font-orbitron text-xl font-bold">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div>
+                    <h1 class="font-orbitron font-bold text-lg md:text-xl text-cyber-neon tracking-wider text-glow-cyan flex items-center gap-2">
+                        IP MASTERY <span class="text-xs px-2 py-0.5 rounded bg-cyber-purple/20 border border-cyber-purple text-cyber-purple">KELOMPOK 2</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 hidden sm:block">Petualangan & Troubleshooting Teknisi Jaringan</p>
+                </div>
+            </div>
+
+            <!-- Global Player Status Bar -->
+            <div id="player-status-bar" class="hidden flex items-center gap-3 sm:gap-6 bg-cyber-bg/80 border border-cyber-border rounded-xl px-4 py-1.5 text-xs sm:text-sm font-mono">
+                <!-- Avatar Active -->
+                <div class="flex items-center gap-2 border-r border-cyber-border pr-3">
+                    <span id="stat-avatar" class="text-2xl">🐉</span>
+                    <div>
+                        <div id="stat-name" class="font-bold text-cyber-neon text-xs">Teknisi Cyber</div>
+                        <div class="text-[10px] text-gray-400">LVL <span id="stat-level-num">1</span></div>
+                    </div>
+                </div>
+                <!-- XP -->
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400">EXP</span>
+                    <span id="stat-xp" class="text-cyber-purple font-bold">0 XP</span>
+                </div>
+                <!-- Score -->
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400">SKOR</span>
+                    <span id="stat-score" class="text-cyber-yellow font-bold">0</span>
+                </div>
+                <!-- Combo -->
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400">COMBO</span>
+                    <span id="stat-combo" class="text-cyber-green font-bold">x0 🔥</span>
+                </div>
+                <!-- Lives -->
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400">NYAWA</span>
+                    <div id="stat-lives" class="text-cyber-red font-bold flex gap-1">❤️❤️❤️</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+                <button onclick="game.showMaterialModal()" class="px-3 py-1.5 rounded-lg border border-cyber-purple bg-cyber-purple/10 hover:bg-cyber-purple/20 text-xs font-mono text-cyber-purple font-bold transition flex items-center gap-1.5 glow-purple">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span class="hidden sm:inline">Materi IP Address</span>
+                </button>
+                <button id="btn-sound-toggle" onclick="game.toggleSound()" class="p-2 rounded-lg border border-cyber-border bg-cyber-card hover:border-cyber-neon text-gray-300 transition">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+                <button onclick="game.showHome()" class="px-3 py-1.5 rounded-lg border border-cyber-border bg-cyber-card hover:border-cyber-neon text-xs font-mono text-gray-300 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="hidden sm:inline">Menu Utama</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 relative">
+
+        <!-- MODAL MATERI IP ADDRESS -->
+        <section id="view-materi" class="hidden space-y-6 max-w-4xl mx-auto py-4">
+            <div class="bg-cyber-card border border-cyber-purple/50 rounded-2xl p-6 space-y-6 shadow-2xl">
+                <div class="flex justify-between items-center border-b border-cyber-border pb-4">
+                    <div>
+                        <h2 class="font-orbitron text-2xl font-bold text-cyber-purple flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-cyber-neon"></i> ENSIKLOPEDIA & MATERI IP ADDRESS
+                        </h2>
+                        <p class="text-xs text-gray-400 font-mono">Panduan Ringkas & Konsep Dasar Alamat IP untuk Jaringan Komputer</p>
+                    </div>
+                    <button onclick="game.showHome()" class="px-3 py-1 bg-cyber-bg border border-cyber-border rounded-lg text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Tabs Materi -->
+                <div class="flex flex-wrap gap-2 border-b border-cyber-border/60 pb-3 font-mono text-xs">
+                    <button onclick="game.switchMateriTab('tab-dasar')" id="btn-tab-dasar" class="materi-tab-btn px-3 py-1.5 rounded-lg bg-cyber-purple text-black font-bold">1. Dasar IPv4</button>
+                    <button onclick="game.switchMateriTab('tab-kelas')" id="btn-tab-kelas" class="materi-tab-btn px-3 py-1.5 rounded-lg bg-cyber-bg border border-cyber-border text-gray-300">2. Kelas IP (Classful)</button>
+                    <button onclick="game.switchMateriTab('tab-cidr')" id="btn-tab-cidr" class="materi-tab-btn px-3 py-1.5 rounded-lg bg-cyber-bg border border-cyber-border text-gray-300">3. CIDR & Subnet Mask</button>
+                    <button onclick="game.switchMateriTab('tab-khusus')" id="btn-tab-khusus" class="materi-tab-btn px-3 py-1.5 rounded-lg bg-cyber-bg border border-cyber-border text-gray-300">4. IP Khusus & Private</button>
+                </div>
+
+                <!-- Tab Content 1: Dasar IPv4 -->
+                <div id="tab-dasar" class="materi-content space-y-4 font-mono text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-2">
+                        <h3 class="font-orbitron text-cyber-neon font-bold text-base">Apa itu IP Address?</h3>
+                        <p><strong>IP Address (Internet Protocol Address)</strong> adalah identik numerik unik yang diberikan kepada setiap perangkat yang terhubung ke jaringan komputer berbasis standar TCP/IP. Fungsinya mirip dengan <em>alamat rumah</em> agar paket data dikirim ke tujuan yang tepat.</p>
+                    </div>
+
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-3">
+                        <h3 class="font-orbitron text-cyber-neon font-bold text-base">Struktur IPv4 (32 Bit / 4 Oktet)</h3>
+                        <p>IPv4 terdiri dari total <strong>32 bit</strong> angka biner yang dibagi menjadi <strong>4 oktet</strong> (masing-masing 8 bit) dan dipisahkan oleh titik (Dot-Decimal Notation).</p>
+                        <div class="p-3 bg-cyber-card border border-cyber-neon/40 rounded-lg text-center font-bold text-cyber-neon">
+                            Format: Oktet 1 . Oktet 2 . Oktet 3 . Oktet 4<br>
+                            Contoh: 192 . 168 . 1 . 10
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300 text-xs">
+                            <li>Setiap oktet bernilai desimal dari <strong class="text-cyber-yellow">0 hingga 255</strong> (berasal dari nilai biner <code class="text-cyber-neon">00000000</code> sampai <code class="text-cyber-neon">11111111</code>).</li>
+                            <li><strong>IP Valid:</strong> <code class="text-cyber-green">172.16.254.1</code> (semua oktet &le; 255 dan berjumlah 4 oktet).</li>
+                            <li><strong>IP Tidak Valid:</strong> <code class="text-cyber-red">192.168.1.256</code> (oktet 256 melebihi batas 255) atau <code class="text-cyber-red">10.0.1</code> (hanya 3 oktet).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tab Content 2: Kelas IP -->
+                <div id="tab-kelas" class="materi-content hidden space-y-4 font-mono text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-2">
+                        <h3 class="font-orbitron text-cyber-purple font-bold text-base">Sistem Pengalamatan Classful (Historis)</h3>
+                        <p>Secara historis, IPv4 dibagi menjadi 5 Kelas (Class A - E) berdasarkan nilai oktet pertamanya:</p>
+                        
+                        <div class="overflow-x-auto pt-2">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-cyber-card text-cyber-neon border-b border-cyber-border">
+                                        <th class="p-2">Kelas</th>
+                                        <th class="p-2">Oktet Pertama</th>
+                                        <th class="p-2">Default Mask</th>
+                                        <th class="p-2">Peruntukan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-cyber-border/50">
+                                    <tr>
+                                        <td class="p-2 font-bold text-cyber-yellow">Kelas A</td>
+                                        <td class="p-2">1 – 126</td>
+                                        <td class="p-2">255.0.0.0 (/8)</td>
+                                        <td class="p-2">Jaringan Skala Sangat Besar (Jutaan Host)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold text-cyber-yellow">Kelas B</td>
+                                        <td class="p-2">128 – 191</td>
+                                        <td class="p-2">255.255.0.0 (/16)</td>
+                                        <td class="p-2">Jaringan Skala Menengah - Besar</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold text-cyber-yellow">Kelas C</td>
+                                        <td class="p-2">192 – 223</td>
+                                        <td class="p-2">255.255.255.0 (/24)</td>
+                                        <td class="p-2">Jaringan LAN Lokal / Kecil (Maks 254 Host)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold text-cyber-purple">Kelas D</td>
+                                        <td class="p-2">224 – 239</td>
+                                        <td class="p-2">N/A</td>
+                                        <td class="p-2">Penggunaan Khusus <strong>Multicast</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold text-cyber-pink">Kelas E</td>
+                                        <td class="p-2">240 – 255</td>
+                                        <td class="p-2">N/A</td>
+                                        <td class="p-2">Riset, Eksperimen & Cadangan Masa Depan</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-cyber-purple/10 border border-cyber-purple/40 rounded-xl text-xs text-gray-300">
+                        <strong class="text-cyber-yellow"><i class="fa-solid fa-triangle-exclamation"></i> Catatan Penting:</strong> Sistem kelas A, B, C adalah sistem <em>classful</em> masa lalu. Jaringan internet modern menggunakan sistem <strong>CIDR (Classless Inter-Domain Routing)</strong> agar tidak terjadi pemborosan alokasi IP Address.
+                    </div>
+                </div>
+
+                <!-- Tab Content 3: CIDR & Subnetting -->
+                <div id="tab-cidr" class="materi-content hidden space-y-4 font-mono text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-2">
+                        <h3 class="font-orbitron text-cyber-neon font-bold text-base">Subnet Mask & Prefix CIDR</h3>
+                        <p><strong>Subnet Mask</strong> digunakan oleh komputer untuk menentukan bagian mana dari IP Address yang merupakan <strong>Network ID</strong> (Identitas Jaringan) dan bagian mana yang merupakan <strong>Host ID</strong> (Identitas Perangkat).</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-center text-xs">
+                            <div class="p-3 bg-cyber-card border border-cyber-border rounded-lg">
+                                <div class="text-cyber-neon font-bold">/8</div>
+                                <div class="text-gray-400">255.0.0.0</div>
+                                <div class="text-[10px] text-gray-500">8 bit Network</div>
+                            </div>
+                            <div class="p-3 bg-cyber-card border border-cyber-border rounded-lg">
+                                <div class="text-cyber-neon font-bold">/16</div>
+                                <div class="text-gray-400">255.255.0.0</div>
+                                <div class="text-[10px] text-gray-500">16 bit Network</div>
+                            </div>
+                            <div class="p-3 bg-cyber-card border border-cyber-border rounded-lg">
+                                <div class="text-cyber-neon font-bold">/24</div>
+                                <div class="text-gray-400">255.255.255.0</div>
+                                <div class="text-[10px] text-gray-500">24 bit Network</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-2">
+                        <h3 class="font-orbitron text-cyber-neon font-bold text-base">Rumus Menghitung Host Usable</h3>
+                        <p class="text-xs">Jumlah IP usable yang dapat dipasangkan pada PC/Device dihitung dengan rumus:</p>
+                        <div class="p-2.5 bg-cyber-card border border-cyber-green/40 text-cyber-green rounded-lg text-center font-bold">
+                            Jumlah Host Usable = 2<sup>(32 - Prefix)</sup> - 2
+                        </div>
+                        <p class="text-xs text-gray-400"><em>*Dikurangi 2 karena IP Pertama digunakan untuk <strong>Network ID</strong> dan IP Terakhir untuk <strong>Broadcast Address</strong>.</em></p>
+                    </div>
+                </div>
+
+                <!-- Tab Content 4: IP Khusus & Private -->
+                <div id="tab-khusus" class="materi-content hidden space-y-4 font-mono text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-3">
+                        <h3 class="font-orbitron text-cyber-yellow font-bold text-base">Alamat IP Khusus yang Tidak Boleh Digunakan Host</h3>
+                        <ul class="space-y-2 text-xs">
+                            <li class="p-2.5 bg-cyber-card rounded-lg border border-cyber-border">
+                                <strong class="text-cyber-neon">1. Network ID (IP Pertama):</strong>
+                                <p class="text-gray-400 mt-0.5">Contoh: <code class="text-white">192.168.1.0/24</code>. Alamat ini merupakan identitas/nama segmen jaringan.</p>
+                            </li>
+                            <li class="p-2.5 bg-cyber-card rounded-lg border border-cyber-border">
+                                <strong class="text-cyber-neon">2. Broadcast Address (IP Terakhir):</strong>
+                                <p class="text-gray-400 mt-0.5">Contoh: <code class="text-white">192.168.1.255/24</code>. Alamat untuk mengirim sinyal/pesan ke seluruh host di subnet.</p>
+                            </li>
+                            <li class="p-2.5 bg-cyber-card rounded-lg border border-cyber-border">
+                                <strong class="text-cyber-neon">3. Loopback Address (127.0.0.1 / Blok 127.0.0.0/8):</strong>
+                                <p class="text-gray-400 mt-0.5">Digunakan untuk testing komunikasi internal perangkat itu sendiri (localhost).</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-cyber-bg border border-cyber-border rounded-xl p-4 space-y-2">
+                        <h3 class="font-orbitron text-cyber-green font-bold text-base">Blok IP Private (RFC 1918)</h3>
+                        <p class="text-xs">IP Private digunakan bebas di jaringan lokal (LAN) rumah, sekolah, atau kantor tanpa perlu dibeli dari ISP:</p>
+                        <ul class="list-disc list-inside text-xs text-gray-300 space-y-1">
+                            <li><strong>Kelas A Private:</strong> 10.0.0.0 - 10.255.255.255</li>
+                            <li><strong>Kelas B Private:</strong> 172.16.0.0 - 172.31.255.255</li>
+                            <li><strong>Kelas C Private:</strong> 192.168.0.0 - 192.168.255.255</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xs font-mono text-gray-400">Dibuat oleh Kelompok 2</span>
+                    <button onclick="game.showHome()" class="px-5 py-2 bg-cyber-purple text-black font-orbitron font-bold text-xs rounded-xl hover:opacity-90 transition">
+                        <i class="fa-solid fa-check"></i> PAHAM, KEMBALI KE GAME
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 1: HOME / LANDING SCREEN -->
+        <section id="view-home" class="space-y-8 py-4">
+            <!-- Hero Cyber Banner -->
+            <div class="relative bg-cyber-card/80 border border-cyber-neon/40 rounded-2xl p-6 md:p-10 overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 backdrop-blur">
+                <div class="absolute -top-10 -right-10 w-60 h-60 bg-cyber-neon/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="space-y-4 max-w-2xl z-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-neon/10 border border-cyber-neon/30 text-cyber-neon text-xs font-mono">
+                        <span class="w-2 h-2 rounded-full bg-cyber-neon animate-ping"></span>
+                        Simulasi Jaringan Interaktif v2.5
+                    </div>
+                    <h2 class="font-orbitron font-extrabold text-3xl sm:text-5xl text-white tracking-wide leading-tight">
+                        BECOME AN <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon via-cyber-purple to-cyber-pink">IP MASTER</span>
+                    </h2>
+                    <p class="text-gray-300 text-sm md:text-base font-rajdhani leading-relaxed">
+                        Jelajahi dunia jaringan komputer, selesaikan misi subnetting, perbaiki konfigurasi router, dan kalahkan Boss Network Security. Didesain khusus oleh <strong class="text-cyber-neon">Kelompok 2</strong>!
+                    </p>
+
+                    <!-- Kelompok 2 Members Badge List -->
+                    <div class="pt-2 border-t border-cyber-border/60">
+                        <p class="text-xs font-mono text-gray-400 mb-2"><i class="fa-solid fa-users text-cyber-purple mr-1"></i> TIM PENGEMBANG (KELOMPOK 2):</p>
+                        <div class="flex flex-wrap gap-1.5 text-xs font-mono">
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-neon/40 text-cyber-neon font-semibold">Zahra</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Hilyan</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Loopy</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Ida</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Mahes</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Syafal</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Sakha</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Rafi</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-bg border border-cyber-border text-gray-300">Hadi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar & Hero Card Side -->
+                <div class="z-10 bg-cyber-bg/90 border border-cyber-border rounded-xl p-5 w-full md:w-80 flex flex-col items-center text-center space-y-4">
+                    <div class="text-xs font-mono text-gray-400">KARAKTER AKTIF</div>
+                    <div id="home-avatar-preview" class="text-6xl my-2 p-4 rounded-full bg-cyber-card border-2 border-cyber-neon/50 animate-bounce">
+                        🐉
+                    </div>
+                    <div>
+                        <div id="home-character-name" class="font-orbitron font-bold text-lg text-cyber-neon">Ignis Dragon</div>
+                        <div id="home-character-role" class="text-xs text-cyber-purple font-mono">Spesialis Classful IP</div>
+                    </div>
+                    <button onclick="game.showCharacterSelect()" class="w-full py-2 bg-cyber-card border border-cyber-purple hover:bg-cyber-purple/20 text-cyber-purple font-mono text-xs rounded-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-gear"></i> Ganti Karakter / Pengaturan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pre-Game Settings Panel -->
+            <div class="bg-cyber-card border border-cyber-border rounded-xl p-5 space-y-4">
+                <h3 class="font-orbitron text-base text-cyber-neon flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-cyber-purple"></i> Pengaturan Ronde & Timer Permainan
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Durasi Timer Pertanyaan (Detik):</label>
+                        <select id="setting-timer" class="w-full bg-cyber-bg border border-cyber-border rounded-lg p-2.5 text-cyber-neon focus:border-cyber-neon outline-none">
+                            <option value="0">Tanpa Batas Waktu (Santai)</option>
+                            <option value="15">15 Detik / Soal (Sangat Cepat)</option>
+                            <option value="30" selected>30 Detik / Soal (Standar)</option>
+                            <option value="45">45 Detik / Soal (Pemula)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Batas Waktu Boss Challenge:</label>
+                        <select id="setting-boss-time" class="w-full bg-cyber-bg border border-cyber-border rounded-lg p-2.5 text-cyber-neon focus:border-cyber-neon outline-none">
+                            <option value="60">60 Detik (Tantangan Berat)</option>
+                            <option value="90" selected>90 Detik (Standar)</option>
+                            <option value="120">120 Detik (Cukup Ringan)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Jumlah Nyawa Per Level:</label>
+                        <select id="setting-lives" class="w-full bg-cyber-bg border border-cyber-border rounded-lg p-2.5 text-cyber-neon focus:border-cyber-neon outline-none">
+                            <option value="3" selected>3 Nyawa (Klasik)</option>
+                            <option value="5">5 Nyawa (Mudah)</option>
+                            <option value="1">1 Nyawa (Hardcore)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEVEL SELECTION CARDS -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-orbitron text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-map text-cyber-neon"></i> MODUL & LEVEL MISI
+                    </h3>
+                    <button onclick="game.resetProgress()" class="text-xs text-cyber-red font-mono hover:underline">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Progres
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="level-grid">
+                    <!-- Cards will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: CHARACTER SELECT MODAL / VIEW -->
+        <section id="view-character" class="hidden space-y-6 max-w-4xl mx-auto py-4">
+            <div class="bg-cyber-card border border-cyber-neon/40 rounded-2xl p-6 space-y-6">
+                <div class="flex justify-between items-center border-b border-cyber-border pb-4">
+                    <div>
+                        <h2 class="font-orbitron text-2xl font-bold text-cyber-neon">PILIH AVATAR & KARAKTER</h2>
+                        <p class="text-xs text-gray-400 font-mono">Pilih karakter fiksi & fantasi favoritmu untuk menemani petualangan subnetting!</p>
+                    </div>
+                    <button onclick="game.showHome()" class="px-3 py-1 bg-cyber-bg border border-cyber-border rounded-lg text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Character Selection Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="character-grid">
+                    <!-- Characters injected by JS -->
+                </div>
+
+                <div class="flex justify-end pt-4">
+                    <button onclick="game.saveCharacterSelection()" class="px-6 py-2.5 bg-gradient-to-r from-cyber-neon to-cyber-purple text-black font-bold font-orbitron rounded-xl hover:opacity-90 transition">
+                        <i class="fa-solid fa-check"></i> SIMPAN KARAKTER
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAMEPLAY VIEW (Quiz / Config / Detective) -->
+        <section id="view-gameplay" class="hidden space-y-6 py-2">
+            <!-- Top HUD Bar -->
+            <div class="bg-cyber-card border border-cyber-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+                <div class="flex items-center gap-3">
+                    <span id="gameplay-level-badge" class="px-3 py-1 rounded bg-cyber-neon/20 border border-cyber-neon text-cyber-neon font-bold font-orbitron">
+                        LEVEL 1
+                    </span>
+                    <span id="gameplay-level-title" class="text-gray-200 text-sm font-bold">Mengenal IPv4</span>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-cyber-purple"></i>
+                        <span>Soal: <strong id="gameplay-question-num" class="text-white">1/7</strong></span>
+                    </div>
+                    <div id="timer-box" class="flex items-center gap-2 text-cyber-yellow hidden">
+                        <i class="fa-solid fa-clock animate-spin"></i>
+                        <span>Waktu: <strong id="gameplay-timer" class="text-white">30s</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Educational Notice Banner for Classful vs CIDR -->
+            <div id="edu-info-banner" class="bg-cyber-purple/10 border border-cyber-purple/40 rounded-xl p-3 text-xs font-mono text-gray-300 flex items-start gap-2">
+                <i class="fa-solid fa-lightbulb text-cyber-yellow text-base shrink-0 mt-0.5"></i>
+                <div>
+                    <strong class="text-cyber-neon">Fakta Penting IP:</strong> <span id="edu-banner-text">Kelas A, B, C, D, E adalah sistem historis (Classful). Jaringan modern internet menggunakan CIDR (Classless Inter-Domain Routing) & Subnetting fleksibel!</span>
+                </div>
+            </div>
+
+            <!-- QUESTION CARD & INTERACTIVE CANVAS AREA -->
+            <div class="bg-cyber-card border border-cyber-border rounded-2xl p-6 space-y-6 shadow-2xl relative">
+                
+                <!-- Character Avatar Companion Floating Message -->
+                <div class="flex items-center gap-3 bg-cyber-bg/90 border border-cyber-border/80 rounded-xl p-3">
+                    <div id="gameplay-companion-avatar" class="text-3xl shrink-0">🐉</div>
+                    <div class="text-xs font-mono">
+                        <span id="gameplay-companion-name" class="text-cyber-neon font-bold">Ignis Dragon</span>:
+                        <span id="gameplay-companion-speech" class="text-gray-300 italic">"Perhatikan setiap oktet dengan teliti! Nilai tiap oktet tidak boleh lebih dari 255."</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Network Topology Canvas (Shown for Config & Troubleshooting levels) -->
+                <div id="network-canvas-container" class="hidden bg-cyber-bg border border-cyber-border rounded-xl p-4 relative overflow-hidden">
+                    <div class="text-xs font-mono text-cyber-neon mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-network-wired"></i> TOPOLOGI JARINGAN SIMULASI</span>
+                        <span id="network-status-indicator" class="text-cyber-yellow"><i class="fa-solid fa-circle-dot"></i> Menunggu Konfigurasi...</span>
+                    </div>
+                    
+                    <div id="network-diagram" class="relative h-44 w-full flex items-center justify-between px-6 md:px-16">
+                        <!-- Node PC A -->
+                        <div class="flex flex-col items-center gap-1 z-10">
+                            <div class="w-14 h-14 rounded-xl bg-cyber-card border-2 border-cyber-neon flex items-center justify-center text-cyber-neon text-2xl shadow-lg">
+                                <i class="fa-solid fa-desktop"></i>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-white">Komputer A</span>
+                            <span id="node-a-ip" class="text-[10px] font-mono text-cyber-neon">192.168.1.10</span>
+                        </div>
+
+                        <!-- Router Node / Switch -->
+                        <div class="flex flex-col items-center gap-1 z-10">
+                            <div id="router-node-icon" class="w-16 h-16 rounded-full bg-cyber-card border-2 border-cyber-purple flex items-center justify-center text-cyber-purple text-2xl shadow-lg">
+                                <i class="fa-solid fa-router"></i>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-white">Router / Switch</span>
+                            <span id="node-gw-ip" class="text-[10px] font-mono text-cyber-purple">GW: 192.168.1.1</span>
+                        </div>
+
+                        <!-- Node PC B -->
+                        <div class="flex flex-col items-center gap-1 z-10">
+                            <div class="w-14 h-14 rounded-xl bg-cyber-card border-2 border-cyber-green flex items-center justify-center text-cyber-green text-2xl shadow-lg">
+                                <i class="fa-solid fa-server"></i>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-white">Server B</span>
+                            <span id="node-b-ip" class="text-[10px] font-mono text-cyber-green">192.168.1.50</span>
+                        </div>
+
+                        <!-- Connecting SVG Line -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index:1;">
+                            <line x1="15%" y1="50%" x2="50%" y2="50%" stroke="#00f0ff" stroke-width="2" class="network-line" />
+                            <line x1="50%" y1="50%" x2="85%" y2="50%" stroke="#10b981" stroke-width="2" class="network-line" />
+                        </svg>
+
+                        <!-- Data Packet Animation Dot -->
+                        <div id="animated-packet" class="hidden absolute top-1/2 -translate-y-1/2 text-cyber-yellow text-xl z-20">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUESTION TEXT -->
+                <div class="space-y-2">
+                    <h3 id="question-text" class="font-orbitron font-semibold text-lg md:text-xl text-white leading-relaxed">
+                        Manakah di bawah ini yang merupakan alamat IPv4 yang VALID?
+                    </h3>
+                    <p id="question-hint" class="text-xs font-mono text-gray-400">
+                        Petunjuk: Alamat IPv4 terdiri dari 4 oktet, masing-masing angka bernilai antara 0 hingga 255.
+                    </p>
+                </div>
+
+                <!-- INTERACTION AREA: Multiple Choice vs Config Input -->
+                <!-- A. Multiple Choice Options Grid -->
+                <div id="area-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <!-- Dynamic option buttons -->
+                </div>
+
+                <!-- B. Configuration Simulation Form (For Level 4) -->
+                <div id="area-config-form" class="hidden space-y-4 pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+                        <div class="space-y-1">
+                            <label class="text-gray-300">IP Address Device:</label>
+                            <input type="text" id="cfg-ip" placeholder="e.g. 192.168.1.15" class="w-full bg-cyber-bg border border-cyber-border rounded-lg p-2.5 text-cyber-neon focus:border-cyber-neon outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-gray-300">Subnet Mask:</label>
+                            <input type="text" id="cfg-mask" placeholder="e.g. 255.255.255.0" class="w-full bg-cyber-bg border border-cyber-border rounded-lg p-2.5 text-cyber-neon focus:border-cyber-neon outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-gray-300">Default Gateway:</label>
+                            <input type="text" id="cfg-gw" placeholder="e.g. 192.168.1.1" class="w-full bg-cyber-bg border border-cyber-border rounded-lg p-2.5 text-cyber-neon focus:border-cyber-neon outline-none">
+                        </div>
+                    </div>
+                    <button onclick="game.submitConfigForm()" class="w-full py-3 bg-gradient-to-r from-cyber-neon to-cyber-green text-black font-orbitron font-bold rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> TEST KONEKSI & APPLIKASIKAN KONFIGURASI
+                    </button>
+                </div>
+
+                <!-- EXPLANATION / FEEDBACK BOX -->
+                <div id="explanation-box" class="hidden rounded-xl p-4 border font-mono text-xs space-y-2">
+                    <div id="explanation-title" class="font-bold font-orbitron text-sm flex items-center gap-2">
+                        <!-- Emoji & Status -->
+                    </div>
+                    <div id="explanation-desc" class="text-gray-200 leading-relaxed">
+                        <!-- Educational explanation -->
+                    </div>
+                    <button id="btn-next-question" onclick="game.nextQuestion()" class="mt-3 px-5 py-2 bg-cyber-neon text-black font-orbitron font-bold rounded-lg hover:bg-white transition flex items-center gap-2">
+                        <span>Lanjutkan</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: LEVEL COMPLETED / RESULTS SCREEN -->
+        <section id="view-result" class="hidden space-y-6 max-w-2xl mx-auto text-center py-8">
+            <div class="bg-cyber-card border border-cyber-neon/50 rounded-2xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+                <div class="text-6xl my-2" id="result-emoji">🎉</div>
+                <h2 id="result-title" class="font-orbitron font-extrabold text-3xl text-cyber-neon">
+                    MISI SELESAI!
+                </h2>
+                <p id="result-subtitle" class="text-gray-300 font-mono text-sm">
+                    Selamat, Anda berhasil menguasai konfigurasi jaringan ini!
+                </p>
+
+                <!-- Stats Summary Grid -->
+                <div class="grid grid-cols-3 gap-3 bg-cyber-bg border border-cyber-border rounded-xl p-4 font-mono">
+                    <div>
+                        <div class="text-[10px] text-gray-400">TOTAL SKOR</div>
+                        <div id="res-score" class="text-cyber-yellow font-bold text-lg">1200</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400">EXP DIPEROLEH</div>
+                        <div id="res-xp" class="text-cyber-purple font-bold text-lg">+350 XP</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400">AKURASI</div>
+                        <div id="res-accuracy" class="text-cyber-green font-bold text-lg">100%</div>
+                    </div>
+                </div>
+
+                <div id="res-boss-badge" class="hidden bg-cyber-purple/20 border border-cyber-purple rounded-xl p-3 text-xs font-mono text-cyber-purple font-bold">
+                    🏆 LELUHUR SUBNETTING: Gelar "Network Architect" Diberikan!
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <button onclick="game.repeatLevel()" class="w-full sm:w-auto px-6 py-2.5 bg-cyber-card border border-cyber-border hover:border-cyber-neon text-gray-200 font-mono text-xs rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Ulangi Level
+                    </button>
+                    <button id="btn-next-level" onclick="game.continueToNextLevel()" class="w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-cyber-neon to-cyber-purple text-black font-orbitron font-bold text-xs rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2">
+                        <span>Lanjut Level Berikutnya</span> <i class="fa-solid fa-play"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-cyber-card border-t border-cyber-border/80 py-4 px-4 mt-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-gray-400 gap-2">
+            <div>
+                © 2026 IP Address Mastery — Dibuat oleh <strong class="text-cyber-neon">Kelompok 2</strong>
+            </div>
+            <div class="flex items-center gap-4 text-gray-400">
+                <span><i class="fa-solid fa-graduation-cap text-cyber-purple"></i> Media Edukasi Jaringan</span>
+                <span><i class="fa-solid fa-code text-cyber-neon"></i> HTML5 + JS Pure</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* ===================================================================
+           IP ADDRESS MASTERY — GAME LOGIC & BANK SOAL
+           Developer: Kelompok 2 (Zahra, Hilyan, Loopy, Ida, Mahes, Syafal, Sakha, Rafi, Hadi)
+           =================================================================== */
+
+        // Sound FX Generator using Web Audio API (No External Audio Files Needed)
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, this.ctx.currentTime + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.2); // G5
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(110, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+
+            playLevelUp() {
+                if (!this.enabled) return;
+                this.init();
+                [261.63, 329.63, 392.00, 523.25, 659.25].forEach((freq, index) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime + index * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + index * 0.08 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + index * 0.08);
+                    osc.stop(this.ctx.currentTime + index * 0.08 + 0.2);
+                });
+            }
+        }
+
+        // Available Fantasy & Cyber Characters List
+        const CHARACTERS = [
+            {
+                id: 'dragon',
+                name: 'Ignis Cyber Dragon',
+                role: 'Naga Pelindung Subnet',
+                emoji: '🐉',
+                desc: 'Naga mitologis berkekuatan komputasi tinggi yang membakar paket data jahat.'
+            },
+            {
+                id: 'cat',
+                name: 'Neko Hacker',
+                role: 'Kucing Detektif IP',
+                emoji: '🐱',
+                desc: 'Lincah menemukan kesalahan konfigurasi IP dan konflik jaringan.'
+            },
+            {
+                id: 'wizard',
+                name: 'Archmage Network',
+                role: 'Penyihir Router & CIDR',
+                emoji: '🧙‍♂️',
+                desc: 'Menguasai sihir manipulasi subnet mask dan bitwise perkalian.'
+            },
+            {
+                id: 'robot',
+                name: 'Sya-Bot 3000',
+                role: 'Robot AI Konfigurasi',
+                emoji: '🤖',
+                desc: 'Perhitungannya presisi 100% tanpa celah kesalahan logika.'
+            },
+            {
+                id: 'phoenix',
+                name: 'Phoenix Packet',
+                role: 'Burung Api Jaringan',
+                emoji: '🦅',
+                desc: 'Selalu bangkit saat koneksi jaringan down dan merestorasi gateway.'
+            },
+            {
+                id: 'elf',
+                name: 'Cyber Elf Ranger',
+                role: 'Pemanah Trafik Jaringan',
+                emoji: '🧝‍♀️',
+                desc: 'Menembak paket data tepat target dengan latensi ultra rendah.'
+            }
+        ];
+
+        // Comprehensive Question Bank across 6 Levels
+        const QUESTION_BANK = {
+            1: [ // Level 1: Mengenal IPv4
+                {
+                    q: "Manakah di bawah ini yang merupakan format alamat IPv4 yang VALID?",
+                    hint: "IPv4 terdiri dari 4 oktet dipisahkan titik, tiap nilai 0 - 255.",
+                    options: ["192.168.1.256", "172.16.254.1", "10.0.0.300", "192.168.1"],
+                    answer: 1,
+                    exp: "172.16.254.1 valid karena memiliki 4 oktet dan semua angkanya berada dalam rentang 0 hingga 255."
+                },
+                {
+                    q: "Berapa jumlah oktet yang membentuk satu alamat IPv4?",
+                    hint: "Setiap oktet berukuran 8 bit.",
+                    options: ["2 Oktet", "4 Oktet", "6 Oktet", "8 Oktet"],
+                    answer: 1,
+                    exp: "IPv4 terdiri dari 4 oktet (total 32 bit), seperti A.B.C.D."
+                },
+                {
+                    q: "Berapakah rentang nilai desimal yang diizinkan untuk setiap oktet pada IPv4?",
+                    hint: "1 oktet = 8 bit (2^8 = 256 kombinasi).",
+                    options: ["0 - 100", "1 - 255", "0 - 255", "0 - 512"],
+                    answer: 2,
+                    exp: "Nilai tiap oktet berada di rentang 0 hingga 255 (berasal dari nilai 00000000 hingga 11111111 dalam biner)."
+                },
+                {
+                    q: "Mengapa IP Address '192.168.10.270' TIDAK VALID?",
+                    hint: "Periksa nilai oktet terakhir.",
+                    options: [
+                        "Karena oktet terakhir (270) melebihi batas maksimum 255",
+                        "Karena menggunakan angka 192",
+                        "Karena jumlah oktetnya kurang",
+                        "Karena tidak menggunakan tanda titik"
+                    ],
+                    answer: 0,
+                    exp: "Oktet ke-4 bernilai 270, yang mana melebihi batas maksimal oktet IPv4 yaitu 255."
+                },
+                {
+                    q: "Benar atau Salah: Alamat '0.0.0.0' adalah alamat IPv4 berformat valid secara sintaks.",
+                    hint: "Secara struktur format 4 oktet desimal.",
+                    options: ["BENAR", "SALAH"],
+                    answer: 0,
+                    exp: "BENAR. Secara sintaks 0.0.0.0 valid (4 oktet 0-255), biasa digunakan sebagai default route atau Unspecified Address."
+                },
+                {
+                    q: "Manakah IP di bawah ini yang TIDAK VALID?",
+                    hint: "Cari oktet yang bernilai negatif atau >255.",
+                    options: ["10.10.10.10", "127.0.0.1", "255.255.255.255", "192.168.1.1.1"],
+                    answer: 3,
+                    exp: "192.168.1.1.1 tidak valid karena memiliki 5 oktet! IPv4 hanya boleh memiliki 4 oktet."
+                },
+                {
+                    q: "Total panjang bit dari satu alamat IPv4 adalah...",
+                    hint: "4 oktet x 8 bit.",
+                    options: ["16 bit", "32 bit", "64 bit", "128 bit"],
+                    answer: 1,
+                    exp: "IPv4 berukuran 32 bit (4 x 8 bit). Sebagai pembanding, IPv6 berukuran 128 bit."
+                }
+            ],
+            2: [ // Level 2: Kelas IP Address (Classful & Context)
+                {
+                    q: "Manakah rentang oktet pertama untuk IP Address Kelas A?",
+                    hint: "Kelas A memiliki kapasitas host paling besar.",
+                    options: ["1 - 126", "128 - 191", "192 - 223", "224 - 239"],
+                    answer: 0,
+                    exp: "Kelas A memiliki oktet pertama berkisar antara 1 - 126 (127 digunakan untuk loopback/testing)."
+                },
+                {
+                    q: "IP Address '192.168.1.50' termasuk ke dalam IP Kelas apa secara arsitektur historis Classful?",
+                    hint: "Lihat oktet pertama: 192.",
+                    options: ["Kelas A", "Kelas B", "Kelas C", "Kelas D"],
+                    answer: 2,
+                    exp: "Rentang oktet pertama Kelas C adalah 192 - 223. Jadi 192.168.1.50 adalah Kelas C."
+                },
+                {
+                    q: "Apa fungsi utama dari alokasi IP Kelas D (224.0.0.0 - 239.255.255.255)?",
+                    hint: "Digunakan untuk pengiriman pesan dari satu ke banyak titik.",
+                    options: ["Jaringan Skala Sangat Besar", "Penggunaan Eksperimen", "Multicast", "Loopback Localhost"],
+                    answer: 2,
+                    exp: "IP Kelas D disediakan khusus untuk alamat Multicast (transmisi data ke kelompok host tertentu)."
+                },
+                {
+                    q: "Alamat IP Kelas E (240.0.0.0 - 255.255.255.255) diperuntukkan bagi...",
+                    hint: "Bukan untuk penggunaan umum/komersial.",
+                    options: ["Eksperimen / Penggunaan Khusus Masa Depan", "Multicast Video Streaming", "Komputer Client Rumahan", "Server Website Komersial"],
+                    answer: 0,
+                    exp: "Kelas E dialokasikan untuk riset, eksperimen, dan penggunaan cadangan khusus."
+                },
+                {
+                    q: "Mengapa IP 127.0.0.1 tidak biasa dipakai sebagai IP komputer di jaringan lokal?",
+                    hint: "Dipakai untuk localhost.",
+                    options: [
+                        "Karena itu adalah IP khusus Loopback / Testing internal perangkat",
+                        "Karena itu IP multicast",
+                        "Karena itu IP Kelas D",
+                        "Karena itu IP publik murni"
+                    ],
+                    answer: 0,
+                    exp: "Blok 127.0.0.0/8 khusus reserved untuk Loopback adapter (pengujian stack protokol TCP/IP internal komputer)."
+                },
+                {
+                    q: "Konteks Modern: Apakah internet saat ini masih kaku memakai sistem Kelas A, B, C?",
+                    hint: "Ingat catatan edukasi tentang CIDR.",
+                    options: [
+                        "Ya, masih wajib memakai Kelas A, B, C",
+                        "Tidak, jaringan modern menggunakan CIDR (Classless) agar efisien",
+                        "Hanya Kelas A yang masih dipakai",
+                        "Sistem Kelas diganti penuh oleh IPv6 saja"
+                    ],
+                    answer: 1,
+                    exp: "Sistem Classful (A/B/C) sudah lama digantikan oleh CIDR (Classless Inter-Domain Routing) sejak tahun 1993 untuk menghemat pemborosan IP."
+                },
+                {
+                    q: "Rentang oktet pertama untuk IP Kelas B adalah...",
+                    hint: "Antara Kelas A dan Kelas C.",
+                    options: ["1 - 126", "128 - 191", "192 - 223", "224 - 239"],
+                    answer: 1,
+                    exp: "Kelas B memiliki oktet pertama bernilai 128 - 191."
+                }
+            ],
+            3: [ // Level 3: Subnet Mask & CIDR Prefix
+                {
+                    q: "Berapa Subnet Mask standar (default) untuk IP Kelas C /24?",
+                    hint: "3 oktet pertama bernilai penuh 255.",
+                    options: ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.255"],
+                    answer: 2,
+                    exp: "Prefix /24 berarti ada 24 bit angka '1' (11111111.11111111.11111111.00000000) = 255.255.255.0."
+                },
+                {
+                    q: "Prefix CIDR '/16' setara dengan Subnet Mask...",
+                    hint: "16 bit angka '1' bernilai 2 oktet 255.",
+                    options: ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.128"],
+                    answer: 1,
+                    exp: "/16 = 16 bit Network ID = 255.255.0.0."
+                },
+                {
+                    q: "Prefix CIDR '/8' biasanya digunakan pada default Subnet Mask Kelas apa?",
+                    hint: "Hanya oktet pertama yang berisi network bit.",
+                    options: ["Kelas A", "Kelas B", "Kelas C", "Kelas D"],
+                    answer: 0,
+                    exp: "/8 setara dengan 255.0.0.0 yang merupakan mask standar Kelas A."
+                },
+                {
+                    q: "Berapakah jumlah bit angka '1' pada Subnet Mask '255.255.255.128'?",
+                    hint: "24 bit + 1 bit pada oktet terakhir (128 = 10000000).",
+                    options: ["/24", "/25", "/26", "/27"],
+                    answer: 1,
+                    exp: "255.255.255.128 memiliki 24 bit + 1 bit = 25 bit angka 1, sehingga notasi CIDR-nya adalah /25."
+                },
+                {
+                    q: "Apa fungsi utama dari Subnet Mask dalam konfigurasi TCP/IP?",
+                    hint: "Memisahkan porsi alamat.",
+                    options: [
+                        "Membedakan mana porsi Network ID dan Mana porsi Host ID",
+                        "Mempercepat koneksi internet WiFi",
+                        "Mengubah IP private menjadi IP public",
+                        "Menentukan MAC Address hardware"
+                    ],
+                    answer: 0,
+                    exp: "Subnet Mask berfungsi memisahkan porsi Network (Jaringan) dan Host (Perangkat)."
+                },
+                {
+                    q: "Jika sebuah komputer memakai IP 10.0.0.1/24, berapa Subnet Mask yang harus diisikan?",
+                    hint: "Perhatikan prefix /24.",
+                    options: ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.255"],
+                    answer: 2,
+                    exp: "Meskipun angka 10 di oktet pertama mirip Kelas A, prefix /24 menentukan bahwa mask yang dipakai adalah 255.255.255.0."
+                },
+                {
+                    q: "Subnet mask 255.255.255.240 memiliki prefix CIDR berapa?",
+                    hint: "240 dalam biner adalah 11110000 (4 bit). 24 + 4 = ?",
+                    options: ["/26", "/27", "/28", "/29"],
+                    answer: 2,
+                    exp: "240 = 11110000 biner (4 bit). Total bit 24 + 4 = 28 bit (/28)."
+                }
+            ],
+            4: [ // Level 4: Interactive Simulation Config Tasks (Handled specially via UI & Quiz)
+                {
+                    type: "config",
+                    targetIP: "192.168.1.15",
+                    targetMask: "255.255.255.0",
+                    targetGW: "192.168.1.1",
+                    subnetDesc: "Lab Komputer A (Subnet 192.168.1.0/24)",
+                    q: "SKENARIO MISI 1: Konfigurasikan Komputer Client A agar dapat terhubung ke Router Gateway (192.168.1.1) dalam subnet /24!",
+                    hint: "IP Client harus berada di rentang 192.168.1.2 - 192.168.1.254, Mask: 255.255.255.0, Gateway: 192.168.1.1",
+                    exp: "Konfigurasi sukses! IP Address, Subnet Mask, dan Default Gateway berada dalam satu segmen subnet yang sama."
+                },
+                {
+                    type: "config",
+                    targetIP: "10.0.0.50",
+                    targetMask: "255.255.255.0",
+                    targetGW: "10.0.0.1",
+                    subnetDesc: "Jaringan Server Kantor (Subnet 10.0.0.0/24)",
+                    q: "SKENARIO MISI 2: Hubungkan Komputer Kasir ke Gateway Server 10.0.0.1 dengan Subnet Mask 255.255.255.0!",
+                    hint: "Gunakan IP diawali 10.0.0.X (selain .1), Mask 255.255.255.0, Gateway 10.0.0.1",
+                    exp: "Luar biasa! Komputer Kasir sekarang dapat mengirimkan data ke Server Pusat."
+                },
+                {
+                    type: "config",
+                    targetIP: "172.16.5.20",
+                    targetMask: "255.255.0.0",
+                    targetGW: "172.16.0.1",
+                    subnetDesc: "Gedung Ruang Guru (Subnet 172.16.0.0/16)",
+                    q: "SKENARIO MISI 3: Atur IP PC Guru di Subnet 172.16.0.0/16 dengan Gateway 172.16.0.1!",
+                    hint: "Subnet /16 menggunakan mask 255.255.0.0. IP harus diawali 172.16.X.Y",
+                    exp: "Sempurna! Konfigurasi mask /16 (255.255.0.0) cocok dengan Gateway."
+                }
+            ],
+            5: [ // Level 5: Detektif IP & Troubleshooting
+                {
+                    q: "TROUBLESHOOT: PC-1 (192.168.1.10/24) tidak bisa PING ke PC-2 (192.168.2.10/24) tanpa router. Mengapa?",
+                    hint: "Bandingkan oktet ke-3 dari kedua IP.",
+                    options: [
+                        "Karena berada di Subnet yang berbeda (192.168.1.0 vs 192.168.2.0)",
+                        "Karena Subnet Mask salah",
+                        "Karena IP PC-2 tidak valid",
+                        "Karena kabel UTP terputus"
+                    ],
+                    answer: 0,
+                    exp: "Satu berada di jaringan 192.168.1.x dan satunya di 192.168.2.x. Tanpa Router (Gateway), dua subnet berbeda tidak bisa saling ping."
+                },
+                {
+                    q: "KONFLIK IP: Dua laptop di ruang rapat tiba-tiba terputus koneksinya. Di layar muncul 'IP Address Conflict'. Apa penyebabnya?",
+                    hint: "Penggunaan alamat IP yang identik.",
+                    options: [
+                        "Kedua laptop mendapatkan IP Address yang sama persis di satu jaringan",
+                        "Subnet mask kedua laptop berbeda",
+                        "Password WiFi salah",
+                        "Kapasitas router habis"
+                    ],
+                    answer: 0,
+                    exp: "IP Conflict terjadi jika ada 2 perangkat atau lebih menggunakan IP Address yang identik pada satu segmen jaringan LAN yang sama."
+                },
+                {
+                    q: "DETEKTIF SUBNET: PC A (192.168.1.5, mask 255.255.255.0) dan PC B (192.168.1.50, mask 255.255.255.0). Apakah berada di Subnet yang sama?",
+                    hint: "Cek apakah Network ID (3 oktet awal) sama.",
+                    options: [
+                        "YA, keduanya berada di subnet 192.168.1.0/24",
+                        "TIDAK, karena angka hostnya beda jauh (5 dan 50)",
+                        "TIDAK, PC B harus pakai mask 255.255.0.0",
+                        "Hanya bisa konek jika ada switch khusus"
+                    ],
+                    answer: 0,
+                    exp: "YA. Network ID keduanya adalah 192.168.1.0 dengan mask 255.255.255.0, sehingga berada dalam satu LAN yang sama."
+                },
+                {
+                    q: "Mengapa IP Address '192.168.1.255' dengan mask '255.255.255.0' TIDAK BISA dipasang ke perangkat komputer PC biasa?",
+                    hint: "Ingat fungsi IP terakhir dalam sebuah subnet.",
+                    options: [
+                        "Karena itu adalah Alamat Broadcast Subnet",
+                        "Karena itu Alamat Network ID",
+                        "Karena angka 255 tidak diizinkan di IPv4",
+                        "Karena itu IP khusus router ISP"
+                    ],
+                    answer: 0,
+                    exp: "IP terakhir (192.168.1.255/24) adalah Alamat Broadcast yang digunakan untuk mengirim pesan ke seluruh host, bukan untuk satu device (unicast)."
+                },
+                {
+                    q: "Mengapa IP Address '192.168.1.0' dengan mask '255.255.255.0' juga TIDAK BISA dipasangkan pada LAN card PC?",
+                    hint: "Ingat fungsi IP pertama dalam subnet.",
+                    options: [
+                        "Karena itu Alamat Network ID (identitas segmen jaringan)",
+                        "Karena angka 0 dianggap rusak oleh sistem operasi",
+                        "Karena itu IP gateway default",
+                        "Karena itu alamat loopback"
+                    ],
+                    answer: 0,
+                    exp: "IP pertama (.0) digunakan sebagai Network ID (nama/identitas segmen jaringan) dan tidak boleh dipakai host."
+                },
+                {
+                    q: "ANALISIS BINER: Berapakah Alamat Network ID dari IP 192.168.10.15/24?",
+                    hint: "Ubah host bit menjadi 0.",
+                    options: ["192.168.10.0", "192.168.10.1", "192.168.10.255", "192.168.0.0"],
+                    answer: 0,
+                    exp: "Network ID dari 192.168.10.15/24 adalah 192.168.10.0."
+                }
+            ],
+            6: [ // Level 6: Boss Challenge (Kuis Campuran Berwaktu)
+                {
+                    q: "BOSS Q1: Berapakah jumlah Host ID yang VALID/dapat dipakai pada subnet /24 (255.255.255.0)?",
+                    hint: "Total 256 IP minus 2 (Network ID & Broadcast).",
+                    options: ["256 Host", "255 Host", "254 Host", "252 Host"],
+                    answer: 2,
+                    exp: "Total 2^8 = 256 IP. Dikurangi 2 (Network ID & Broadcast) = 254 Host usable."
+                },
+                {
+                    q: "BOSS Q2: Berapakah Alamat Broadcast dari IP 10.0.0.1/8?",
+                    hint: "Semua bit host (24 bit) dijadikan angka 1 (255).",
+                    options: ["10.255.255.255", "10.0.0.255", "255.255.255.255", "10.0.0.0"],
+                    answer: 0,
+                    exp: "Untuk prefix /8 (255.0.0.0), 3 oktet terakhir dijadikan 255.255.255 untuk Broadcast -> 10.255.255.255."
+                },
+                {
+                    q: "BOSS Q3: Notasi CIDR /30 biasanya digunakan untuk koneksi Point-to-Point antar Router. Berapa IP Usable-nya?",
+                    hint: "2^(32-30) - 2.",
+                    options: ["2 IP Usable", "4 IP Usable", "6 IP Usable", "1 IP Usable"],
+                    answer: 0,
+                    exp: "2^(32-30) = 4 IP total. 4 - 2 = 2 IP Usable (Sangat hemat untuk jalur kabel antar 2 router)."
+                },
+                {
+                    q: "BOSS Q4: Mana IP Address berikut yang termasuk rentang IP PRIVATE Kelas C?",
+                    hint: "RFC 1918.",
+                    options: ["192.168.0.0 - 192.168.255.255", "10.0.0.0 - 10.255.255.255", "172.16.0.0 - 172.31.255.255", "127.0.0.0 - 127.255.255.255"],
+                    answer: 0,
+                    exp: "192.168.0.0/16 adalah blok IP Private Kelas C sesuai standar RFC 1918."
+                },
+                {
+                    q: "BOSS Q5: Berapakah Subnet Mask untuk prefix /26?",
+                    hint: "128 + 64 = 192.",
+                    options: ["255.255.255.128", "255.255.255.192", "255.255.255.224", "255.255.255.240"],
+                    answer: 1,
+                    exp: "/26 = 24 bit + 2 bit (128 + 64 = 192) -> 255.255.255.192."
+                },
+                {
+                    q: "BOSS Q6: Apa fungsi dari perintah 'ipconfig' di Command Prompt Windows?",
+                    hint: "Digunakan teknisi untuk mengecek jaringan lokal.",
+                    options: [
+                        "Melihat informasi alamat IP, Subnet Mask, dan Gateway komputer",
+                        "Memperbaiki kabel UTP yang putus",
+                        "Menghapus virus di router",
+                        "Membuat jaringan WiFi baru"
+                    ],
+                    answer: 0,
+                    exp: "ipconfig menampilkan statistik TCP/IP dan alamat IP adapter yang aktif di Windows."
+                },
+                {
+                    q: "BOSS Q7: Manakah pasangan IP dan Subnet Mask yang BISA saling berkomunikasi langsung tanpa router?",
+                    hint: "Cek apakah berada di subnet yang sama.",
+                    options: [
+                        "PC1: 192.168.1.10/24 dan PC2: 192.168.1.20/24",
+                        "PC1: 192.168.1.10/24 dan PC2: 192.168.2.20/24",
+                        "PC1: 10.0.0.1/24 dan PC2: 10.0.1.1/24",
+                        "PC1: 172.16.1.1/16 dan PC2: 172.17.1.1/16"
+                    ],
+                    answer: 0,
+                    exp: "PC1 dan PC2 sama-sama berada di network 192.168.1.0/24 sehingga bisa terhubung langsung lewat Switch."
+                }
+            ]
+        };
+
+        // Main Game Application Engine Object
+        class IPGameEngine {
+            constructor() {
+                this.sound = new SoundFX();
+                
+                // Game State
+                this.state = {
+                    xp: 0,
+                    score: 0,
+                    level: 1,
+                    unlockedLevel: 1,
+                    combo: 0,
+                    lives: 3,
+                    character: CHARACTERS[0],
+                    currentQuestionIdx: 0,
+                    timerVal: 30,
+                    bossTimeVal: 90,
+                    timerInterval: null,
+                    activeQuestions: [],
+                    correctCount: 0
+                };
+
+                this.loadLocalStorage();
+            }
+
+            init() {
+                this.renderCharacterSelectionGrid();
+                this.renderLevelGrid();
+                this.updateHeaderStats();
+                this.applyCharacterDataUI();
+            }
+
+            // Save & Load Engine
+            saveLocalStorage() {
+                const data = {
+                    xp: this.state.xp,
+                    score: this.state.score,
+                    unlockedLevel: this.state.unlockedLevel,
+                    characterId: this.state.character.id
+                };
+                localStorage.setItem('ip_mastery_save_k2', JSON.stringify(data));
+            }
+
+            loadLocalStorage() {
+                try {
+                    const saved = localStorage.getItem('ip_mastery_save_k2');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        this.state.xp = parsed.xp || 0;
+                        this.state.score = parsed.score || 0;
+                        this.state.unlockedLevel = parsed.unlockedLevel || 1;
+                        const charObj = CHARACTERS.find(c => c.id === parsed.characterId);
+                        if (charObj) this.state.character = charObj;
+                    }
+                } catch(e) {
+                    console.warn("Could not load localstorage data", e);
+                }
+            }
+
+            resetProgress() {
+                if (confirm("Apakah Anda yakin ingin mereset seluruh progres game dan skor?")) {
+                    localStorage.removeItem('ip_mastery_save_k2');
+                    this.state.xp = 0;
+                    this.state.score = 0;
+                    this.state.unlockedLevel = 1;
+                    this.init();
+                    alert("Progres telah direset.");
+                }
+            }
+
+            toggleSound() {
+                this.sound.enabled = !this.sound.enabled;
+                const icon = document.getElementById('sound-icon');
+                if (this.sound.enabled) {
+                    icon.className = "fa-solid fa-volume-high";
+                } else {
+                    icon.className = "fa-solid fa-volume-xmark text-cyber-red";
+                }
+            }
+
+            // View Management
+            hideAllViews() {
+                ['view-home', 'view-character', 'view-gameplay', 'view-result', 'view-materi'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
+            }
+
+            showHome() {
+                this.clearIntervals();
+                this.hideAllViews();
+                document.getElementById('view-home').classList.remove('hidden');
+                document.getElementById('player-status-bar').classList.remove('hidden');
+                this.renderLevelGrid();
+                this.updateHeaderStats();
+            }
+
+            showCharacterSelect() {
+                this.hideAllViews();
+                document.getElementById('view-character').classList.remove('hidden');
+            }
+
+            showMaterialModal() {
+                this.hideAllViews();
+                document.getElementById('view-materi').classList.remove('hidden');
+            }
+
+            switchMateriTab(tabId) {
+                document.querySelectorAll('.materi-content').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.materi-tab-btn').forEach(btn => {
+                    btn.className = 'materi-tab-btn px-3 py-1.5 rounded-lg bg-cyber-bg border border-cyber-border text-gray-300';
+                });
+
+                document.getElementById(tabId).classList.remove('hidden');
+                const activeBtn = document.getElementById('btn-' + tabId);
+                if (activeBtn) {
+                    activeBtn.className = 'materi-tab-btn px-3 py-1.5 rounded-lg bg-cyber-purple text-black font-bold';
+                }
+            }
+
+            // Render Character Options
+            renderCharacterSelectionGrid() {
+                const grid = document.getElementById('character-grid');
+                grid.innerHTML = '';
+
+                CHARACTERS.forEach(char => {
+                    const isSelected = char.id === this.state.character.id;
+                    const card = document.createElement('div');
+                    card.className = `p-4 rounded-xl border cursor-pointer transition flex flex-col items-center text-center space-y-2 ${
+                        isSelected 
+                        ? 'bg-cyber-neon/10 border-cyber-neon glow-cyan' 
+                        : 'bg-cyber-bg border-cyber-border hover:border-gray-500'
+                    }`;
+                    card.onclick = () => this.selectCharacter(char.id);
+
+                    card.innerHTML = `
+                        <div class="text-5xl my-1">${char.emoji}</div>
+                        <div class="font-orbitron font-bold text-white text-sm">${char.name}</div>
+                        <div class="text-xs text-cyber-purple font-mono font-semibold">${char.role}</div>
+                        <p class="text-[11px] text-gray-400 font-mono">${char.desc}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            selectCharacter(id) {
+                const charObj = CHARACTERS.find(c => c.id === id);
+                if (charObj) {
+                    this.state.character = charObj;
+                    this.renderCharacterSelectionGrid();
+                }
+            }
+
+            saveCharacterSelection() {
+                this.saveLocalStorage();
+                this.applyCharacterDataUI();
+                this.showHome();
+            }
+
+            applyCharacterDataUI() {
+                document.getElementById('stat-avatar').innerText = this.state.character.emoji;
+                document.getElementById('stat-name').innerText = this.state.character.name;
+                document.getElementById('home-avatar-preview').innerText = this.state.character.emoji;
+                document.getElementById('home-character-name').innerText = this.state.character.name;
+                document.getElementById('home-character-role').innerText = this.state.character.role;
+            }
+
+            // Render Level Selection Cards
+            renderLevelGrid() {
+                const levelGrid = document.getElementById('level-grid');
+                levelGrid.innerHTML = '';
+
+                const levelsInfo = [
+                    { num: 1, title: "Mengenal IPv4", icon: "fa-network-wired", desc: "Format 4 oktet, validasi alamat IP, dan batas rentang 0–255." },
+                    { num: 2, title: "Kelas IP Address", icon: "fa-layer-group", desc: "Kelas A, B, C, D, E & konteks historis vs sistem CIDR modern." },
+                    { num: 3, title: "Subnet Mask & CIDR", icon: "fa-sliders", desc: "Memahami 255.255.255.0, notasi /8, /16, /24, dan pemisahan Host ID." },
+                    { num: 4, title: "Konfigurasi Jaringan", icon: "fa-terminal", desc: "Simulasi interaktif setting IP, Subnet Mask, dan Default Gateway." },
+                    { num: 5, title: "Detektif IP & Troubleshooting", icon: "fa-user-secret", desc: "Temukan IP Conflict, kesalahan subnetting, dan broadcast address." },
+                    { num: 6, title: "Boss Challenge", icon: "fa-skull-crossbones", desc: "Kuis campuran berwaktu dengan syarat skor minimum lulus." }
+                ];
+
+                levelsInfo.forEach(info => {
+                    const isUnlocked = info.num <= this.state.unlockedLevel;
+                    const card = document.createElement('div');
+                    
+                    card.className = `p-5 rounded-xl border flex flex-col justify-between space-y-4 transition ${
+                        isUnlocked 
+                        ? 'bg-cyber-card border-cyber-border hover:border-cyber-neon hover:shadow-lg' 
+                        : 'bg-cyber-bg/50 border-cyber-border/40 opacity-60'
+                    }`;
+
+                    card.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold ${
+                                    isUnlocked ? 'bg-cyber-neon/20 border border-cyber-neon text-cyber-neon' : 'bg-gray-800 text-gray-500'
+                                }">LEVEL ${info.num}</span>
+                                <i class="fa-solid ${isUnlocked ? info.icon + ' text-cyber-purple' : 'fa-lock text-gray-600'} text-lg"></i>
+                            </div>
+                            <h4 class="font-orbitron font-bold text-base text-white">${info.title}</h4>
+                            <p class="text-xs text-gray-400 font-mono">${info.desc}</p>
+                        </div>
+
+                        <button ${isUnlocked ? `onclick="game.startLevel(${info.num})"` : 'disabled'} 
+                            class="w-full py-2 rounded-lg font-orbitron font-bold text-xs transition ${
+                                isUnlocked 
+                                ? 'bg-cyber-neon/10 border border-cyber-neon text-cyber-neon hover:bg-cyber-neon hover:text-black' 
+                                : 'bg-gray-800 border border-gray-700 text-gray-600 cursor-not-allowed'
+                            }">
+                            ${isUnlocked ? '<i class="fa-solid fa-play mr-1"></i> MULAI MISI' : '<i class="fa-solid fa-lock mr-1"></i> TERKUNCI'}
+                        </button>
+                    `;
+
+                    levelGrid.appendChild(card);
+                });
+            }
+
+            // START LEVEL GAMEPLAY
+            startLevel(levelNum) {
+                this.state.level = levelNum;
+                this.state.currentQuestionIdx = 0;
+                this.state.correctCount = 0;
+                this.state.combo = 0;
+
+                // Read Settings from UI
+                const livesSetting = parseInt(document.getElementById('setting-lives').value);
+                const timerSetting = parseInt(document.getElementById('setting-timer').value);
+                const bossTimeSetting = parseInt(document.getElementById('setting-boss-time').value);
+
+                this.state.lives = livesSetting;
+                this.state.timerVal = timerSetting;
+                this.state.bossTimeVal = bossTimeSetting;
+
+                // Load Questions for this level
+                this.state.activeQuestions = [...QUESTION_BANK[levelNum]];
+                
+                // Switch View
+                this.hideAllViews();
+                document.getElementById('view-gameplay').classList.remove('hidden');
+
+                // Update Level Title HUD
+                const levelTitles = ["", "Mengenal IPv4", "Kelas IP Address", "Subnet Mask & CIDR", "Konfigurasi Jaringan", "Detektif IP", "Boss Challenge"];
+                document.getElementById('gameplay-level-badge').innerText = `LEVEL ${levelNum}`;
+                document.getElementById('gameplay-level-title').innerText = levelTitles[levelNum];
+
+                // Set Companion Speech
+                document.getElementById('gameplay-companion-avatar').innerText = this.state.character.emoji;
+                document.getElementById('gameplay-companion-name').innerText = this.state.character.name;
+
+                this.renderQuestion();
+            }
+
+            renderQuestion() {
+                this.clearIntervals();
+                this.updateHeaderStats();
+
+                // Check if Game Over (0 lives)
+                if (this.state.lives <= 0) {
+                    alert("❤️ Nyawa Anda telah habis! Silakan coba lagi level ini.");
+                    this.showHome();
+                    return;
+                }
+
+                const totalQ = this.state.activeQuestions.length;
+                if (this.state.currentQuestionIdx >= totalQ) {
+                    // Level Finished!
+                    this.finishLevel();
+                    return;
+                }
+
+                const qData = this.state.activeQuestions[this.state.currentQuestionIdx];
+
+                // UI Question Counter
+                document.getElementById('gameplay-question-num').innerText = `${this.state.currentQuestionIdx + 1}/${totalQ}`;
+
+                // Set Question Text & Hint
+                document.getElementById('question-text').innerText = qData.q;
+                document.getElementById('question-hint').innerText = `💡 Petunjuk: ${qData.hint}`;
+
+                // Hide Explanation box initially
+                document.getElementById('explanation-box').classList.add('hidden');
+
+                // Check Question Type: Configuration Simulation vs Standard Multiple Choice
+                const configArea = document.getElementById('area-config-form');
+                const optionsArea = document.getElementById('area-options');
+                const canvasArea = document.getElementById('network-canvas-container');
+
+                if (qData.type === 'config') {
+                    // Show Interactive Topology & Config Inputs
+                    configArea.classList.remove('hidden');
+                    optionsArea.classList.add('hidden');
+                    canvasArea.classList.remove('hidden');
+
+                    // Reset form inputs
+                    document.getElementById('cfg-ip').value = '';
+                    document.getElementById('cfg-mask').value = '';
+                    document.getElementById('cfg-gw').value = '';
+                    document.getElementById('animated-packet').classList.add('hidden');
+                    document.getElementById('network-status-indicator').innerHTML = '<span class="text-cyber-yellow"><i class="fa-solid fa-circle-dot"></i> Menunggu Konfigurasi...</span>';
+
+                } else {
+                    // Standard Quiz
+                    configArea.classList.add('hidden');
+                    optionsArea.classList.remove('hidden');
+                    
+                    // Show topology map only for level 5 troubleshooting or keep simple
+                    if (this.state.level === 5) {
+                        canvasArea.classList.remove('hidden');
+                    } else {
+                        canvasArea.classList.add('hidden');
+                    }
+
+                    // Render Option Buttons
+                    optionsArea.innerHTML = '';
+                    qData.options.forEach((optText, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = "p-4 rounded-xl border border-cyber-border bg-cyber-bg hover:border-cyber-neon hover:bg-cyber-neon/10 text-left font-mono text-xs sm:text-sm text-gray-200 transition flex items-start gap-3 group";
+                        btn.onclick = () => this.checkAnswer(idx);
+                        
+                        const letter = String.fromCharCode(65 + idx); // A, B, C, D
+                        btn.innerHTML = `
+                            <span class="w-6 h-6 rounded bg-cyber-card border border-cyber-border text-cyber-neon font-bold flex items-center justify-center shrink-0 group-hover:border-cyber-neon">${letter}</span>
+                            <span class="pt-0.5">${optText}</span>
+                        `;
+                        optionsArea.appendChild(btn);
+                    });
+                }
+
+                // Handle Timer
+                const timerBox = document.getElementById('timer-box');
+                let timeLimit = this.state.timerVal;
+                
+                // Level 6 Boss Challenge uses special time setting
+                if (this.state.level === 6) {
+                    timeLimit = Math.floor(this.state.bossTimeVal / totalQ);
+                }
+
+                if (timeLimit > 0) {
+                    timerBox.classList.remove('hidden');
+                    let timeLeft = timeLimit;
+                    document.getElementById('gameplay-timer').innerText = `${timeLeft}s`;
+
+                    this.state.timerInterval = setInterval(() => {
+                        timeLeft--;
+                        document.getElementById('gameplay-timer').innerText = `${timeLeft}s`;
+                        if (timeLeft <= 0) {
+                            this.clearIntervals();
+                            this.handleTimeOut();
+                        }
+                    }, 1000);
+                } else {
+                    timerBox.classList.add('hidden');
+                }
+            }
+
+            // Check Answer for Multiple Choice
+            checkAnswer(selectedIdx) {
+                this.clearIntervals();
+                const qData = this.state.activeQuestions[this.state.currentQuestionIdx];
+                const isCorrect = selectedIdx === qData.answer;
+
+                this.processAnswerResult(isCorrect, qData.exp);
+            }
+
+            // Submit Simulation Config Form (Level 4)
+            submitConfigForm() {
+                this.clearIntervals();
+                const qData = this.state.activeQuestions[this.state.currentQuestionIdx];
+
+                const inputIP = document.getElementById('cfg-ip').value.trim();
+                const inputMask = document.getElementById('cfg-mask').value.trim();
+                const inputGW = document.getElementById('cfg-gw').value.trim();
+
+                // Validate IP logic
+                const isMaskCorrect = inputMask === qData.targetMask;
+                const isGWCorrect = inputGW === qData.targetGW;
+                
+                // IP should be in same subnet prefix (e.g. 192.168.1.X and not gateway IP)
+                const ipParts = inputIP.split('.');
+                const targetParts = qData.targetIP.split('.');
+                const isIPValidSubnet = ipParts.length === 4 && 
+                                       ipParts[0] === targetParts[0] && 
+                                       ipParts[1] === targetParts[1] && 
+                                       ipParts[2] === targetParts[2] && 
+                                       parseInt(ipParts[3]) > 1 && parseInt(ipParts[3]) < 255 &&
+                                       inputIP !== inputGW;
+
+                const isCorrect = isMaskCorrect && isGWCorrect && isIPValidSubnet;
+
+                // Animate Packet Transmission
+                const packet = document.getElementById('animated-packet');
+                packet.classList.remove('hidden');
+                packet.className = "absolute top-1/2 -translate-y-1/2 text-cyber-yellow text-xl z-20 animate-packet";
+
+                const indicator = document.getElementById('network-status-indicator');
+
+                if (isCorrect) {
+                    indicator.innerHTML = '<span class="text-cyber-green"><i class="fa-solid fa-circle-check"></i> KONEKSI TERHUBUNG! Sinyal Ping OK (0ms)</span>';
+                } else {
+                    indicator.innerHTML = '<span class="text-cyber-red"><i class="fa-solid fa-circle-xmark"></i> KONEKSI GAGAL! Destination Host Unreachable</span>';
+                }
+
+                let explanationText = qData.exp;
+                if (!isCorrect) {
+                    explanationText = `Konfigurasi Belum Tepat! Target Subnet Mask yang benar: ${qData.targetMask}, Target Default Gateway: ${qData.targetGW}, IP harus dalam segmen ${targetParts[0]}.${targetParts[1]}.${targetParts[2]}.X (bukan .1).`;
+                }
+
+                this.processAnswerResult(isCorrect, explanationText);
+            }
+
+            handleTimeOut() {
+                const qData = this.state.activeQuestions[this.state.currentQuestionIdx];
+                this.processAnswerResult(false, "⏱️ Waktu Habis! Anda tidak menjawab tepat waktu. " + qData.exp);
+            }
+
+            processAnswerResult(isCorrect, explanationMsg) {
+                const expBox = document.getElementById('explanation-box');
+                const expTitle = document.getElementById('explanation-title');
+                const expDesc = document.getElementById('explanation-desc');
+
+                expBox.classList.remove('hidden');
+
+                if (isCorrect) {
+                    this.sound.playCorrect();
+                    this.state.combo++;
+                    this.state.correctCount++;
+                    
+                    const addedScore = 100 + (this.state.combo * 20);
+                    const addedXP = 50;
+
+                    this.state.score += addedScore;
+                    this.state.xp += addedXP;
+
+                    expBox.className = "rounded-xl p-4 border font-mono text-xs space-y-2 bg-cyber-green/10 border-cyber-green/50 text-gray-100 glow-green";
+                    expTitle.innerHTML = `<span class="text-xl">✅ 🎉 👏</span> <span class="text-cyber-green font-bold">JAWABAN BENAR! (+${addedScore} PTS, +${addedXP} XP)</span>`;
+                    document.getElementById('gameplay-companion-speech').innerText = `"Luar biasa! Combo x${this.state.combo} dicapai. Analisis jaringanmu sangat akurat!"`;
+
+                } else {
+                    this.sound.playWrong();
+                    this.state.combo = 0;
+                    this.state.lives--;
+
+                    expBox.className = "rounded-xl p-4 border font-mono text-xs space-y-2 bg-cyber-red/10 border-cyber-red/50 text-gray-100";
+                    expTitle.innerHTML = `<span class="text-xl">❌ ⚠️ 💔</span> <span class="text-cyber-red font-bold">JAWABAN KURANG TEPAT! (Nyawa -1)</span>`;
+                    document.getElementById('gameplay-companion-speech').innerText = `"Jangan menyerah! Pelajari pembahasan di bawah ini untuk memperbaiki kesalahan."`;
+                }
+
+                expDesc.innerText = explanationMsg;
+                this.updateHeaderStats();
+                this.saveLocalStorage();
+            }
+
+            nextQuestion() {
+                this.state.currentQuestionIdx++;
+                this.renderQuestion();
+            }
+
+            finishLevel() {
+                this.clearIntervals();
+                this.sound.playLevelUp();
+
+                this.hideAllViews();
+                document.getElementById('view-result').classList.remove('hidden');
+
+                const accuracy = Math.round((this.state.correctCount / this.state.activeQuestions.length) * 100);
+                
+                document.getElementById('res-score').innerText = this.state.score;
+                document.getElementById('res-xp').innerText = `+${this.state.correctCount * 50} XP`;
+                document.getElementById('res-accuracy').innerText = `${accuracy}%`;
+
+                // Unlock Next Level if score/accuracy is passed
+                if (accuracy >= 50) {
+                    if (this.state.level === this.state.unlockedLevel && this.state.unlockedLevel < 6) {
+                        this.state.unlockedLevel++;
+                    }
+                    this.saveLocalStorage();
+
+                    document.getElementById('result-emoji').innerText = "🏆";
+                    document.getElementById('result-title').innerText = `LEVEL ${this.state.level} TUNTAS!`;
+                    document.getElementById('result-subtitle').innerText = "Hebat! Anda telah menguasai konsep modul ini dengan sangat baik.";
+                } else {
+                    document.getElementById('result-emoji').innerText = "📊";
+                    document.getElementById('result-title').innerText = "PERLU LATIHAN LAGI";
+                    document.getElementById('result-subtitle').innerText = "Akurasi Anda di bawah 50%. Coba ulangi level untuk memperdalam pemahaman.";
+                }
+
+                if (this.state.level === 6 && accuracy >= 70) {
+                    document.getElementById('res-boss-badge').classList.remove('hidden');
+                } else {
+                    document.getElementById('res-boss-badge').classList.add('hidden');
+                }
+            }
+
+            repeatLevel() {
+                this.startLevel(this.state.level);
+            }
+
+            continueToNextLevel() {
+                if (this.state.level < 6) {
+                    this.startLevel(this.state.level + 1);
+                } else {
+                    this.showHome();
+                }
+            }
+
+            clearIntervals() {
+                if (this.state.timerInterval) {
+                    clearInterval(this.state.timerInterval);
+                    this.state.timerInterval = null;
+                }
+            }
+
+            updateHeaderStats() {
+                document.getElementById('stat-level-num').innerText = Math.floor(this.state.xp / 300) + 1;
+                document.getElementById('stat-xp').innerText = `${this.state.xp} XP`;
+                document.getElementById('stat-score').innerText = this.state.score;
+                document.getElementById('stat-combo').innerText = `x${this.state.combo} 🔥`;
+                
+                // Render Hearts for Lives
+                let heartsHtml = '';
+                for (let i = 0; i < this.state.lives; i++) {
+                    heartsHtml += '❤️';
+                }
+                if (this.state.lives <= 0) heartsHtml = '💀 GAMEOVER';
+                document.getElementById('stat-lives').innerText = heartsHtml;
+            }
+        }
+
+        // Global Game Instance
+        let game;
+        window.addEventListener('DOMContentLoaded', () => {
+            game = new IPGameEngine();
+            game.init();
+        });
+    </script>
+</body>
+</html>
