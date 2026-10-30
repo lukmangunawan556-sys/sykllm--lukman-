@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDUQUIZ - Tantangan Pintar</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              navy: '#1e293b',
+              blue: '#2563eb',
+              lightBlue: '#38bdf8',
+              purple: '#8b5cf6',
+              purpleDark: '#6d28d9',
+              accent: '#f59e0b',
+              correct: '#10b981',
+              incorrect: '#ef4444'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #38bdf8 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="custom-scrollbar">
+
+  <!-- Header Navigation -->
+  <header class="sticky top-0 z-40 w-full glass-card border-b border-slate-800/80 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-blue to-brand-purple flex items-center justify-center shadow-lg shadow-blue-500/20 text-white font-black text-xl">
+          EQ
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            EDUQUIZ
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-blue/20 text-brand-lightBlue border border-brand-lightBlue/30 hidden sm:inline-block">SMA/SMK</span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Tantangan Pintar Pelajar</p>
+        </div>
+      </div>
+
+      <!-- Header Controls -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Stats Button -->
+        <button onclick="navigateTo('stats')" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium transition flex items-center gap-2 border border-slate-700">
+          <i class="fa-solid fa-chart-line text-brand-lightBlue"></i>
+          <span class="hidden md:inline">Statistik & Riwayat</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="soundToggleBtn" onclick="toggleAudio()" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition border border-slate-700" title="Suara Efek">
+          <i id="soundIcon" class="fa-solid fa-volume-high text-brand-accent"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ================= HOME SECTION ================= -->
+    <section id="homeSection" class="space-y-8">
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 sm:p-10 border border-slate-700/60 shadow-2xl">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-purple/20 rounded-full blur-3xl"></div>
+        <div class="absolute -left-10 -top-10 w-64 h-64 bg-brand-blue/20 rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10 max-w-2xl space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-purple/20 border border-brand-purple/40 text-purple-300 text-xs font-semibold">
+            <i class="fa-solid fa-graduation-cap"></i> Kuis Edukasi Interaktif Kelas X
+          </div>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+            Asah Pengetahuanmu, <br><span class="gradient-text">Raih Skor Tertinggi!</span>
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Uji pemahamanmu dalam 12 mata pelajaran pilihan SMA/SMK. Pilih tingkat kesulitan, lawan waktu atau latihan santai, dan pelajari pembahasan lengkapnya!
+          </p>
+          <div class="pt-2 flex flex-wrap gap-3">
+            <a href="#categorySection" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-blue to-brand-purple hover:from-blue-600 hover:to-purple-600 text-white font-bold text-sm sm:text-base transition shadow-lg shadow-blue-500/25 flex items-center gap-2">
+              <i class="fa-solid fa-play"></i> Mulai Bermain
+            </a>
+            <button onclick="scrollToGuide()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm sm:text-base border border-slate-700 transition flex items-center gap-2">
+              <i class="fa-solid fa-circle-info"></i> Panduan
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats Overview Bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="glass-card p-4 rounded-xl border border-slate-800 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-brand-lightBlue text-xl">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-medium">Skor Terbaik</p>
+            <h3 id="statBestScore" class="text-xl font-bold text-white">0%</h3>
+          </div>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl border border-slate-800 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl">
+            <i class="fa-solid fa-gamepad"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-medium">Total Dimainkan</p>
+            <h3 id="statTotalPlayed" class="text-xl font-bold text-white">0 Kuis</h3>
+          </div>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl border border-slate-800 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+            <i class="fa-solid fa-square-check"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-medium">Rata-rata Nilai</p>
+            <h3 id="statAvgScore" class="text-xl font-bold text-white">0%</h3>
+          </div>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl border border-slate-800 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-medium">Mata Pelajaran</p>
+            <h3 class="text-xl font-bold text-white">12 Kategori</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Category Header -->
+      <div id="categorySection" class="space-y-4 pt-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-2xl font-extrabold text-white">Pilih Mata Pelajaran</h3>
+            <p class="text-slate-400 text-sm">Pilih kategori kuis yang ingin kamu pelajari hari ini</p>
+          </div>
+          
+          <!-- Search Bar -->
+          <div class="relative w-full sm:w-72">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" id="searchInput" oninput="filterCategories()" placeholder="Cari mata pelajaran..." class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-brand-lightBlue transition placeholder-slate-500">
+          </div>
+        </div>
+
+        <!-- Subject Cards Grid -->
+        <div id="categoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Dynamic JS Injection -->
+        </div>
+      </div>
+
+      <!-- Playing Guide Section -->
+      <div id="guideSection" class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-6">
+        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+          <div class="w-10 h-10 rounded-xl bg-brand-purple/20 text-brand-purple flex items-center justify-center text-lg">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Panduan Bermain EDUQUIZ</h3>
+            <p class="text-xs text-slate-400">Petunjuk singkat untuk memulai tantangan kuis</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-blue/20 text-brand-lightBlue font-bold flex items-center justify-center text-sm">1</div>
+            <h4 class="font-semibold text-white text-sm">Pilih Kategori & Mode</h4>
+            <p class="text-slate-400 text-xs leading-relaxed">Pilih salah satu dari 12 mata pelajaran, atur mode latihan atau tantangan timer, serta jumlah soal.</p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-purple/20 text-purple-400 font-bold flex items-center justify-center text-sm">2</div>
+            <h4 class="font-semibold text-white text-sm">Jawab & Pelajari</h4>
+            <p class="text-slate-400 text-xs leading-relaxed">Pilih opsi A, B, C, atau D. Lihat umpan balik langsung beserta pembahasan singkat yang informatif.</p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm">3</div>
+            <h4 class="font-semibold text-white text-sm">Evaluasi Hasil</h4>
+            <p class="text-slate-400 text-xs leading-relaxed">Dapatkan nilai akhir, predikat kelulusan, dan motivasi untuk terus meningkatkan kompetensi belajar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONFIGURATION MODAL ================= -->
+    <div id="configModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+      <div class="glass-card max-w-lg w-full rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-6 animate-fade-in">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div id="modalSubjectIcon" class="w-10 h-10 rounded-xl bg-brand-blue/20 text-brand-lightBlue flex items-center justify-center text-lg">
+              <i class="fa-solid fa-book"></i>
+            </div>
+            <div>
+              <h3 id="modalSubjectTitle" class="text-lg font-bold text-white">Matematika</h3>
+              <p class="text-xs text-slate-400">Pengaturan Kuis</p>
+            </div>
+          </div>
+          <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white text-lg p-2">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form id="quizConfigForm" onsubmit="startQuiz(event)" class="space-y-5">
+          <!-- Game Mode -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-300 tracking-wider uppercase">Mode Permainan</label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="cursor-pointer">
+                <input type="radio" name="gameMode" value="challenge" checked class="peer hidden">
+                <div class="p-3 rounded-xl border border-slate-700 bg-slate-800/60 peer-checked:border-brand-lightBlue peer-checked:bg-brand-blue/10 text-center transition">
+                  <i class="fa-solid fa-stopwatch text-brand-accent mb-1 block"></i>
+                  <span class="text-xs font-semibold text-slate-200 block">Tantangan</span>
+                  <span class="text-[10px] text-slate-400">Dengan Timer</span>
+                </div>
+              </label>
+              
+              <label class="cursor-pointer">
+                <input type="radio" name="gameMode" value="practice" class="peer hidden">
+                <div class="p-3 rounded-xl border border-slate-700 bg-slate-800/60 peer-checked:border-brand-lightBlue peer-checked:bg-brand-blue/10 text-center transition">
+                  <i class="fa-solid fa-seedling text-emerald-400 mb-1 block"></i>
+                  <span class="text-xs font-semibold text-slate-200 block">Latihan</span>
+                  <span class="text-[10px] text-slate-400">Tanpa Timer</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-300 tracking-wider uppercase">Tingkat Kesulitan</label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="difficulty" value="mudah" class="peer hidden">
+                <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/60 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 text-center text-xs font-medium text-slate-300 peer-checked:text-emerald-400 transition">
+                  Mudah
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="difficulty" value="sedang" checked class="peer hidden">
+                <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/60 peer-checked:border-amber-500 peer-checked:bg-amber-500/10 text-center text-xs font-medium text-slate-300 peer-checked:text-amber-400 transition">
+                  Sedang
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="difficulty" value="sulit" class="peer hidden">
+                <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/60 peer-checked:border-rose-500 peer-checked:bg-rose-500/10 text-center text-xs font-medium text-slate-300 peer-checked:text-rose-400 transition">
+                  Sulit
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Question Count -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-300 tracking-wider uppercase">Jumlah Soal</label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="questionCount" value="10" checked class="peer hidden">
+                <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/60 peer-checked:border-brand-purple peer-checked:bg-purple-500/10 text-center text-xs font-medium text-slate-300 peer-checked:text-purple-300 transition">
+                  10 Soal
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="questionCount" value="15" class="peer hidden">
+                <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/60 peer-checked:border-brand-purple peer-checked:bg-purple-500/10 text-center text-xs font-medium text-slate-300 peer-checked:text-purple-300 transition">
+                  15 Soal
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="questionCount" value="20" class="peer hidden">
+                <div class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/60 peer-checked:border-brand-purple peer-checked:bg-purple-500/10 text-center text-xs font-medium text-slate-300 peer-checked:text-purple-300 transition">
+                  20 Soal
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-3">
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-blue to-brand-purple hover:from-blue-600 hover:to-purple-600 text-white font-bold text-sm transition shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-play"></i> Mulai Kuis Sekarang
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= QUIZ GAMEPLAY SECTION ================= -->
+    <section id="quizSection" class="hidden space-y-6 max-w-4xl mx-auto">
+      <!-- Quiz Header & Progress Bar -->
+      <div class="glass-card rounded-2xl p-4 sm:p-6 border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button onclick="confirmExitQuiz()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="Keluar">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+              <span id="quizSubjectBadge" class="text-xs font-bold text-brand-lightBlue tracking-wide uppercase">Matematika</span>
+              <h3 id="quizDifficultyBadge" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 inline-block ml-2">Sedang</h3>
+            </div>
+          </div>
+
+          <!-- Timer & Question Counter -->
+          <div class="flex items-center gap-4">
+            <div id="timerContainer" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
+              <i class="fa-solid fa-stopwatch animate-pulse"></i>
+              <span id="timerDisplay">20s</span>
+            </div>
+
+            <div class="text-xs font-semibold text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+              Soal <span id="currentQuestionNum" class="text-brand-lightBlue">1</span> / <span id="totalQuestionsNum">10</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Progress Bar -->
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div id="quizProgressBar" class="bg-gradient-to-r from-brand-blue to-brand-purple h-full w-0 transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Question Box -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-6">
+        <div class="space-y-2">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pertanyaan</span>
+          <h2 id="questionText" class="text-lg sm:text-xl font-bold text-white leading-relaxed">
+            Loading Pertanyaan...
+          </h2>
+        </div>
+
+        <!-- Answer Options -->
+        <div id="optionsContainer" class="grid grid-cols-1 gap-3">
+          <!-- Dynamic JS Injection Options -->
+        </div>
+
+        <!-- Pembahasan / Explanation Block (Hidden initially) -->
+        <div id="explanationBox" class="hidden p-4 sm:p-5 rounded-xl bg-slate-900/90 border border-slate-700 space-y-2 animate-fade-in">
+          <div class="flex items-center gap-2 text-brand-lightBlue font-bold text-xs uppercase tracking-wider">
+            <i class="fa-solid fa-lightbulb"></i> Pembahasan Soal
+          </div>
+          <p id="explanationText" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Penjelasan akan muncul di sini...
+          </p>
+        </div>
+
+        <!-- Footer Control Next Button -->
+        <div class="flex justify-end pt-2">
+          <button id="nextBtn" onclick="handleNextQuestion()" disabled class="px-6 py-3 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm cursor-not-allowed transition flex items-center gap-2">
+            <span>Soal Berikutnya</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RESULT SECTION ================= -->
+    <section id="resultSection" class="hidden space-y-6 max-w-2xl mx-auto text-center">
+      <div class="glass-card rounded-2xl p-6 sm:p-10 border border-slate-800 space-y-6 relative overflow-hidden">
+        
+        <div class="inline-flex w-20 h-20 rounded-full bg-gradient-to-tr from-brand-blue to-brand-purple items-center justify-center text-white text-3xl shadow-xl shadow-purple-500/20 mb-2">
+          <i id="badgeIcon" class="fa-solid fa-award"></i>
+        </div>
+
+        <div>
+          <span id="resSubject" class="text-xs font-bold text-brand-lightBlue uppercase tracking-wider">Matematika - Sedang</span>
+          <h2 id="resGradeTitle" class="text-3xl font-black text-white mt-1">Luar Biasa!</h2>
+          <p id="resMotivationalMessage" class="text-slate-300 text-xs sm:text-sm max-w-md mx-auto mt-2">
+            Kamu menunjukkan pemahaman yang sangat tinggi terhadap materi ini!
+          </p>
+        </div>
+
+        <!-- Score Banner -->
+        <div class="bg-slate-900/80 rounded-xl p-6 border border-slate-800 max-w-md mx-auto space-y-2">
+          <p class="text-xs text-slate-400 font-medium">Skor Akhir Kamu</p>
+          <div class="text-5xl font-black gradient-text" id="resScorePercent">80%</div>
+          <p class="text-xs text-slate-400">Predikat: <span id="resBadgeText" class="font-bold text-brand-accent">Master</span></p>
+        </div>
+
+        <!-- Statistics Grid Breakdown -->
+        <div class="grid grid-cols-3 gap-3 max-w-md mx-auto">
+          <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+            <span class="text-emerald-400 text-xs font-semibold block">Benar</span>
+            <span id="resCorrectCount" class="text-lg font-bold text-white">8</span>
+          </div>
+          <div class="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+            <span class="text-rose-400 text-xs font-semibold block">Salah</span>
+            <span id="resIncorrectCount" class="text-lg font-bold text-white">2</span>
+          </div>
+          <div class="p-3 bg-slate-800 border border-slate-700 rounded-xl">
+            <span class="text-slate-400 text-xs font-semibold block">Lewat</span>
+            <span id="resUnansweredCount" class="text-lg font-bold text-white">0</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+          <button onclick="restartCurrentQuiz()" class="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-blue to-brand-purple hover:from-blue-600 hover:to-purple-600 text-white font-bold text-sm transition shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i> Main Lagi
+          </button>
+          <button onclick="navigateTo('home')" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-list"></i> Ganti Mata Pelajaran
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STATISTICS & HISTORY SECTION ================= -->
+    <section id="statsSection" class="hidden space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-2xl font-black text-white">Statistik & Riwayat Kuis</h2>
+          <p class="text-xs text-slate-400">Catatan perkembangan dan hasil kuis yang pernah kamu selesaikan</p>
+        </div>
+        <button onclick="clearHistory()" class="px-4 py-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold border border-rose-500/30 transition flex items-center gap-2">
+          <i class="fa-solid fa-trash-can"></i> Hapus Riwayat
+        </button>
+      </div>
+
+      <!-- History Table List -->
+      <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="p-4">Tanggal & Waktu</th>
+                <th class="p-4">Mata Pelajaran</th>
+                <th class="p-4">Mode & Kesulitan</th>
+                <th class="p-4">Skor</th>
+                <th class="p-4">Predikat</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody" class="divide-y divide-slate-800 text-slate-300">
+              <!-- Dynamic JS Injection History Rows -->
+            </tbody>
+          </table>
+        </div>
+        <div id="emptyHistoryMsg" class="p-8 text-center text-slate-500 text-xs">
+          Belum ada riwayat permainan. Selesaikan set kuis pertamamu!
+        </div>
+      </div>
+
+      <div>
+        <button onclick="navigateTo('home')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition flex items-center gap-2">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-800/80 py-6 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p>&copy; 2026 EDUQUIZ - Tantangan Pintar. Media Pembelajaran Interaktif SMA/SMK Kelas X.</p>
+      <div class="flex gap-4 text-slate-400">
+        <a href="javascript:void(0)" onclick="scrollToGuide()" class="hover:text-brand-lightBlue transition">Panduan</a>
+        <a href="javascript:void(0)" onclick="navigateTo('stats')" class="hover:text-brand-lightBlue transition">Riwayat</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Confirmation Exit Dialog -->
+  <div id="confirmExitModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-card max-w-sm w-full rounded-2xl p-6 border border-slate-700 text-center space-y-4">
+      <div class="w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl mx-auto">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-base font-bold text-white">Batalkan Permainan?</h3>
+      <p class="text-xs text-slate-400">Progres kuis saat ini tidak akan disimpan jika kamu keluar sekarang.</p>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeExitModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700">Lanjutkan</button>
+        <button onclick="forceExitQuiz()" class="flex-1 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold">Ya, Keluar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC & BANK SOAL -->
+  <script>
+    /* ==========================================================================
+       1. BANK SOAL DATASET (12 CATEGORIES - SMA/SMK KELAS X LEVEL)
+       ========================================================================== */
+    const QUESTION_BANK = {
+      matematika: [
+        { q: "Berapakah nilai x dari persamaan kuadrat x² - 5x + 6 = 0?", options: ["x = 1 atau x = 6", "x = 2 atau x = 3", "x = -2 atau x = -3", "x = -1 atau x = 5"], answer: 1, explanation: "Faktorkan persamaan x² - 5x + 6 = (x - 2)(x - 3) = 0. Maka x = 2 atau x = 3." },
+        { q: "Jika f(x) = 2x + 3 dan g(x) = x², maka nilai dari (f ∘ g)(2) adalah...", options: ["11", "14", "7", "16"], answer: 0, explanation: "g(2) = 2² = 4. Kemudian (f ∘ g)(2) = f(g(2)) = f(4) = 2(4) + 3 = 11." },
+        { q: "Berapakah nilai dari logaritma ³log 27?", options: ["2", "3", "4", "9"], answer: 1, explanation: "Karena 3³ = 27, maka ³log 27 = 3." },
+        { q: "Bentuk sederhana dari (a³b²) / (ab⁻¹) adalah...", options: ["a²b³", "a⁴b", "a²b", "a⁴b³"], answer: 0, explanation: "a³⁻¹ · b²⁻(⁻¹) = a²b³." },
+        { q: "Nilai dari sin 30° + cos 60° adalah...", options: ["1/2", "1", "√3 / 2", "0"], answer: 1, explanation: "sin 30° = 1/2 dan cos 60° = 1/2. Penjumlahannya: 1/2 + 1/2 = 1." }
+      ],
+      bahasa_indonesia: [
+        { q: "Struktur teks laporan hasil observasi (LHO) secara berurutan adalah...", options: ["Pernyataan umum, deskripsi bagian, deskripsi manfaat", "Orientasi, komplikasi, resolusi", "Tesis, argumen, penegasan ulang", "Abstraksi, orientasi, krisis"], answer: 0, explanation: "Teks LHO terdiri atas Pernyataan Umum/Klasifikasi, Deskripsi Bagian, dan Deskripsi Manfaat." },
+        { q: "Kalimat berikut yang mengandung kata kerja material adalah...", options: ["Ibu merasa sangat gembira hari ini.", "Siswa membaca buku sejarah di perpustakaan.", "Dia berpikir tentang masa depannya.", "Budi menyukai pelajaran IPA."], answer: 1, explanation: "Kata kerja material menunjukkan tindakan fisik nyata yang terlihat, yaitu 'membaca'." },
+        { q: "Di bawah ini yang merupakan ciri khas bahasa baku dalam teks anekdot adalah...", options: ["Menggunakan bahasa gaul sehari-hari", "Mengikuti kaidah PUEBI/EYD yang tepat", "Banyak kata kiasan tanpa makna", "Menggunakan bahasa daerah secara dominan"], answer: 1, explanation: "Bahasa baku selalu mengacu pada standar resmi PUEBI / EYD." },
+        { q: "Majas yang membandingkan dua hal secara langsung tanpa kata pembanding dinamakan...", options: ["Simile", "Metfora", "Personifikasi", "Hiperbola"], answer: 1, explanation: "Metafora adalah majas perbandingan langsung tanpa kata hubung seperti 'bagaikan' atau 'seperti'." },
+        { q: "Tujuan utama penulisan teks eksposisi adalah...", options: ["Menceritakan kisah rekaan", "Memaparkan informasi dan pengetahuan secara objektif", "Menghibur pembaca dengan humor", "Menggambarkan objek secara mendetail"], answer: 1, explanation: "Teks eksposisi bertujuan menyampaikan argumen dan fakta untuk menambah wawasan pembaca." }
+      ],
+      bahasa_inggris: [
+        { q: "Choose the correct form: 'She ________ to the library yesterday.'", options: ["goes", "went", "has gone", "going"], answer: 1, explanation: "'Yesterday' indicates Simple Past Tense, so we use the second verb form (V2): 'went'." },
+        { q: "What is the synonym of the word 'ANCIENT'?", options: ["Modern", "Recent", "Very old", "Futuristic"], answer: 2, explanation: "'Ancient' means belonging to the distant past (sangat tua / kuno)." },
+        { q: "Which conditional sentence expresses a real possibility in the future?", options: ["If it rains, I will stay at home.", "If I were a king, I would help you.", "If I had studied, I would have passed.", "If I am you, I will do it."], answer: 0, explanation: "First Conditional (If + Present Simple, Will + V1) expresses possible real future scenarios." },
+        { q: "Identify the passive voice for: 'The mechanic is repairing my car.'", options: ["My car is repaired by the mechanic.", "My car was repaired by the mechanic.", "My car is being repaired by the mechanic.", "My car has been repaired by the mechanic."], answer: 2, explanation: "Present Continuous passive structure: Subject + am/is/are + being + Verb 3." },
+        { q: "Read the caption: 'No pain, no gain.' What does it mean?", options: ["Hard work brings success", "Pain is permanent", "Without gain there is pain", "Never do hard work"], answer: 0, explanation: "'No pain, no gain' is a proverb meaning you need to suffer or work hard to achieve success." }
+      ],
+      informatika: [
+        { q: "Algoritma pencarian yang bekerja dengan cara membagi dua ruang pencarian secara berulang disebut...", options: ["Bubble Sort", "Binary Search", "Linear Search", "Insertion Sort"], answer: 1, explanation: "Binary Search bekerja pada data terurut dengan membagi rentang pencarian menjadi dua bagian." },
+        { q: "Pernyataan percabangan logika 'IF-ELSE' dalam pemrograman digunakan untuk...", options: ["Mengulang perintah berkali-kali", "Membuat fungsi baru", "Mengambil keputusan berdasarkan kondisi tertentu", "Menyimpan data variabel"], answer: 2, explanation: "Struktur IF-ELSE mengevaluasi syarat boolean untuk menentukan jalur eksekusi kode." },
+        { q: "Tipe data yang hanya bernilai benar (True) atau salah (False) adalah...", options: ["Integer", "String", "Boolean", "Float"], answer: 2, explanation: "Tipe data Boolean hanya memiliki dua opsi nilai konstan: True atau False." },
+        { q: "Proses mengurutkan data dari terkecil ke terbesar dinamakan...", options: ["Descending", "Ascending", "Filtering", "Merging"], answer: 1, explanation: "Ascending = urutan menaik (A-Z, 0-9), sedangkan Descending = urutan menurun." },
+        { q: "Konsep komputasi dasar untuk memecahkan masalah kompleks menjadi bagian-bagian kecil dinamakan...", options: ["Decomposisi", "Abstraksi", "Pengenalan Pola", "Algoritma"], answer: 0, explanation: "Dekomposisi adalah proses memecah masalah besar menjadi komponen-komponen yang lebih sederhana." }
+      ],
+      ipas: [
+        { q: "Organel sel yang berfungsi sebagai tempat terjadinya respirasi seluler dan penghasil energi ATP adalah...", options: ["Ribosom", "Mitokondria", "Lisosom", "Badan Golgi"], answer: 1, explanation: "Mitokondria dijuluki 'Powerhouse of Cell' karena menghasilkan energi (ATP) melalui respirasi." },
+        { q: "Perubahan wujud zat dari padat langsung menjadi gas disebut...", options: ["Mencair", "Mengembun", "Menyublim", "Mengkristal"], answer: 2, explanation: "Menyublim adalah peristiwa perubahan zat padat menjadi gas tanpa melalui fase cair." },
+        { q: "Hukum I Newton menyatakan bahwa suatu benda akan tetap diam atau bergerak lurus beraturan jika...", options: ["Gaya geseknya sangat besar", "Resultan gaya yang bekerja sama dengan nol", "Massa benda dikalikan percepatan", "Gaya aksi lebih besar dari reaksi"], answer: 1, explanation: "Hukum I Newton (Kelembaman): Jika ΣF = 0, maka benda diam tetap diam, atau benda bergerak tetap bergerak lurus beraturan." },
+        { q: "Interaksi antara lebah dan bunga yang saling menguntungkan merupakan contoh simbiosis...", options: ["Parasitisme", "Komensalisme", "Mutualisme", "Amensalisme"], answer: 2, explanation: "Mutualisme adalah hubungan dua organisme yang saling memberikan keuntungan." },
+        { q: "Unsur kimia dengan lambang 'Fe' adalah...", options: ["Fluorin", "Besi (Ferrum)", "Fransium", "Fosfor"], answer: 1, explanation: "Fe berasal dari kata Latin 'Ferrum' yang berarti Besi." }
+      ],
+      ips: [
+        { q: "Faktor utama yang menyebabkan timbulnya masalah kelangkaan (scarcity) dalam ekonomi adalah...", options: ["Kebutuhan manusia terbatas, sumber daya tidak terbatas", "Kebutuhan manusia tidak terbatas, sedangkan sumber daya terbatas", "Jumlah uang beredar terlalu banyak", "Pemerintah membatasi produksi pasar"], answer: 1, explanation: "Kelangkaan terjadi karena jurang pemisah antara kebutuhan manusia yang tak terbatas dan sumber daya yang terbatas." },
+        { q: "Proses peleburan dua kebudayaan atau lebih yang menghasilkan kebudayaan baru tanpa menghilangkan ciri kebudayaan lama disebut...", options: ["Asimilasi", "Akulturasi", "Difusi", "Amalgamasi"], answer: 1, explanation: "Akulturasi adalah percampuran budaya tanpa menghilangkan kepribadian asli masing-masing." },
+        { q: "Peta skala besar menunjukkan detail daerah yang...", options: ["Sangat luas seperti seluruh dunia", "Sempit tetapi rinci seperti peta kelurahan/desa", "Sedang seperti peta provinsi", "Tidak rinci"], answer: 1, explanation: "Semakin besar skala peta (misal 1:5.000), makin sempit wilayah yang digambarkan dan makin mendetail informasinya." },
+        { q: "Tindakan ekonomi yang didasari oleh motif untuk mendapatkan keuntungan maksimal dinamakan prinsip...", options: ["Prinsip Ekonomi", "Tindakan Rasional", "Motif Sosial", "Hukum Pasar"], answer: 0, explanation: "Prinsip ekonomi: Usaha dengan pengorbanan sekecil-kecilnya untuk memperoleh hasil sebesar-besarnya." },
+        { q: "Sistem pergeseran status sosial seseorang atau kelompok dalam masyarakat dinamakan...", options: ["Interaksi Sosial", "Mobilitas Sosial", "Konflik Sosial", "Stratifikasi Sosial"], answer: 1, explanation: "Mobilitas sosial adalah perpindahan posisi atau status seseorang/kelompok dari satu lapisan ke lapisan lain." }
+      ],
+      pendidikan_pancasila: [
+        { q: "Sila ketiga Pancasila 'Persatuan Indonesia' dilambangkan oleh simbol...", options: ["Bintang", "Rantai Emas", "Pohon Beringin", "Padi dan Kapas"], answer: 2, explanation: "Pohon Beringin merepresentasikan tempat berteduh dan persatuan seluruh rakyat Indonesia." },
+        { q: "Nilai objektif Pancasila mengandung arti bahwa...", options: ["Pancasila dapat diubah kapan saja", "Pancasila bersumber dari kebudayaan bangsa asing", "Inti nilai-nilai Pancasila bersifat universal dan berlaku sepanjang masa", "Pancasila hanya berlaku saat zaman kemerdekaan"], answer: 2, explanation: "Nilai objektif Pancasila berarti nilai kebenarannya diakui secara universal dan tak terikat waktu." },
+        { q: "Lembaga negara yang berwenang mengubah dan menetapkan UUD 1945 menurut UUD NRI Tahun 1945 adalah...", options: ["Presiden", "DPR", "MPR", "Mahkamah Konstitusi"], answer: 2, explanation: "Pasal 3 Ayat (1) UUD 1945 menegaskan bahwa MPR berwenang mengubah dan menetapkan Undang-Undang Dasar." },
+        { q: "Sikap positif terhadap pelaksanaan demokrasi Pancasila di lingkungan sekolah adalah...", options: ["Memaksakan pendapat pribadi saat diskusi kelompok", "Mengikuti pemilihan ketua OSIS secara jujur dan adil", "Mementingkan kepentingan geng/kelompok sendiri", "Apatis terhadap kegiatan musyawarah"], answer: 1, explanation: "Pemilihan OSIS secara Jujur dan Adil merupakan cerminan pengamalan demokrasi Pancasila di sekolah." },
+        { q: "Konsep Wawasan Nusantara menegaskan bahwa Indonesia merupakan satu kesatuan...", options: ["Politik, Ekonomi, Sosial Budaya, dan Pertahanan Keamanan", "Suku dan Agama saja", "Wilayah daratan tanpa lautan", "Ekonomi antar-pulau terpisah"], answer: 0, explanation: "Wawasan Nusantara mencakup kesatuan Poleksosbudhankam dalam satu wadah NKRI." }
+      ],
+      sejarah_indonesia: [
+        { q: "Naskah Proklamasi Kemerdekaan Indonesia diketik oleh...", options: ["Sayuti Melik", "Sukarni", "B.M. Diah", "Chaerul Saleh"], answer: 0, explanation: "Penyusunan konsep dilakukan oleh Soekarno, Hatta, Achmad Soebardjo, lalu diketik oleh Sayuti Melik." },
+        { q: "Prasasti Yupa merupakan peninggalan kerajaan Hindu tertua di Indonesia, yaitu Kerajaan...", options: ["Tarumanegara", "Kutai", "Sriwijaya", "Majapahit"], answer: 1, explanation: "Prasasti Yupa (Muara Kaman, Kaltim) menandai berdirinya Kerajaan Kutai abad ke-4 Masehi." },
+        { q: "Tujuan utama kaum muda membawa Soekarno dan Hatta ke Rengasdengklok pada 16 Agustus 1945 adalah...", options: ["Paksa untuk menyerah kepada Jepang", "Menjauhkan mereka dari pengaruh dan tekanan pihak Jepang", "Menunggu bantuan pasukan Sekutu", "Mengamankan dokumen penting dari musuh"], answer: 1, explanation: "Peristiwa Rengasdengklok bertujuan mengamankan Dwitunggal agar Proklamasi segera dilaksanakan tanpa campur tangan Jepang." },
+        { q: "Sumpah Pemuda dicetuskan dalam Kongres Pemuda II yang berlangsung pada tanggal...", options: ["28 Oktober 1928", "17 Agustus 1945", "20 Mei 1908", "10 November 1945"], answer: 0, explanation: "Ikrar Sumpah Pemuda disepakati pada 28 Oktober 1928 di Jakarta." },
+        { q: "Kerajaan Islam pertama di pulau Jawa adalah Kerajaan...", options: ["Samudera Pasai", "Demak", "Mataram Islam", "Banten"], answer: 1, explanation: "Demak merupakan kerajaan Islam pertama di Jawa yang didirikan oleh Raden Patah." }
+      ],
+      pai: [
+        { q: "Rukun Iman yang ketiga dalam ajaran Agama Islam adalah iman kepada...", options: ["Malaikat Allah", "Kitab-kitab Allah", "Rasul-rasul Allah", "Hari Kiamat"], answer: 1, explanation: "Urutan Rukun Iman: 1. Allah, 2. Malaikat, 3. Kitab, 4. Rasul, 5. Hari Akhir, 6. Qada & Qadar." },
+        { q: "Malaikat yang bertugas menyampaikan wahyu kepada para Nabi dan Rasul adalah Malaikat...", options: ["Mikail", "Israfil", "Jibril", "Izrail"], answer: 2, explanation: "Malaikat Jibril memegang tugas mulia membawa dan menyampaikan wahyu Allah SWT." },
+        { q: "Sifat wajib bagi Rasul 'Amanah' memiliki arti...", options: ["Jujur", "Dapat dipercaya", "Cerdas", "Menyampaikan"], answer: 1, explanation: "Sifat wajib Rasul: Siddiq (Jujur), Amanah (Dapat dipercaya), Tabligh (Menyampaikan), Fatanah (Cerdas)." },
+        { q: "Hukum bacaan Al-Qur'an apabila Nun mati (نْ) bertemu dengan huruf Hamzah (ء) adalah...", options: ["Izhar Halqi", "Idgham Bigunnah", "Iqlab", "Ikhfa Hakiki"], answer: 0, explanation: "Nun mati/tanwin bertemu huruf halqiyah (termasuk Hamzah) dibaca jelas (Izhar Halqi)." },
+        { q: "Shalat sunnah yang dikerjakan pada malam hari setelah bangun dari tidur disebut Shalat...", options: ["Dhuha", "Tahajud", "Istikharah", "Hajat"], answer: 1, explanation: "Shalat Tahajud adalah shalat sunnah muakkad yang dilaksanakan di malam hari setelah tidur." }
+      ],
+      bahasa_jawa: [
+        { q: "Tembung 'Sugeng rawuh' ing bahasa Jawa tegese yaiku...", options: ["Selamat tinggal", "Selamat datang", "Selamat jalan", "Selamat tidur"], answer: 1, explanation: "'Sugeng rawuh' digunakan untuk menyambut kedatangan seseorang (Selamat datang)." },
+        { q: "Unggah-ungguh basa Jawa sing digunakake wong nom marang wong tuwa yaiku basa...", options: ["Ngoko Lugu", "Ngoko Alus", "Krama Inggil / Krama Alus", "Basa Kawi"], answer: 2, explanation: "Basa Krama Inggil digunakan sebagai tanda penghormatan pemuda kepada orang yang lebih tua." },
+        { q: "Aksara Jawa cacahe (jumlahnya) ana...", options: ["18", "20", "22", "24"], answer: 1, explanation: "Aksara Jawa Carakan berjumlah 20 huruf (Ha Na Ca Ra Ka, dst)." },
+        { q: "Sandhangan swara 'Wulu' ing aksara Jawa ngasilake swara...", options: ["i", "u", "e", "o"], answer: 0, explanation: "Sandhangan Wulu ( ̵i ) memberi vokal 'i' pada aksara dasar." },
+        { q: "Raden Arjuna iku minangka satriya ing...", options: ["Jodhipati", "Madukara", "Sawojajar", "Bumiretawu"], answer: 1, explanation: "Raden Arjuna adalah ksatria di kesatriyan Madukara." }
+      ],
+      pengetahuan_umum: [
+        { q: "Danau vulcano-tektonik terbesar di Indonesia sekaligus di Asia Tenggara adalah Danau...", options: ["Toba", "Singkarak", "Maninjau", "Poso"], answer: 0, explanation: "Danau Toba di Sumatera Utara memiliki luas lebih dari 1.130 km²." },
+        { q: "Mata uang resmi yang digunakan oleh negara Jepang adalah...", options: ["Yuan", "Won", "Yen", "Ringgit"], answer: 2, explanation: "Yen (¥) adalah mata uang resmi negara Jepang." },
+        { q: "Planet terdekat dari Matahari dalam sistem Tata Surya kita adalah...", options: ["Venus", "Merkurius", "Mars", "Bumi"], answer: 1, explanation: "Merkurius berjarak paling dekat dengan Matahari (sekitar 57,9 juta km)." },
+        { q: "Siapakah pencipta lagu kebangsaan 'Indonesia Raya'?", options: ["Ismail Marzuki", "W.R. Soepratman", "C. Simanjuntak", "Kusbini"], answer: 1, explanation: "Wage Rudolf Soepratman pertama kali memperdengarkan lagu Indonesia Raya pada Kongres Pemuda II 1928." },
+        { q: "Landmark terkenal 'Colosseum' terletak di negara...", options: ["Yunani", "Prancis", "Italia", "Spanyol"], answer: 2, explanation: "Colosseum merupakan peninggalan amfiteater megah di Roma, Italia." }
+      ],
+      jaringan_komputer: [
+        { q: "Perangkat jaringan yang berfungsi menghubungkan dua atau lebih jaringan berbeda segmen IP dinamakan...", options: ["Switch", "Router", "Hub", "Access Point"], answer: 1, explanation: "Router bekerja pada Layer 3 (Network Layer) untuk merutekan paket antar-jaringan berbeda." },
+        { q: "Panjang alamat IP versi 4 (IPv4) terdiri atas...", options: ["32 bit", "64 bit", "128 bit", "16 bit"], answer: 0, explanation: "IPv4 dituliskan dalam format 32 bit yang dibagi menjadi 4 oktet desimal berpembatas titik." },
+        { q: "Topologi jaringan yang menggunakan satu kabel tunggal sebagai media transmisi terpusat adalah...", options: ["Topologi Star", "Topologi Bus", "Topologi Ring", "Topologi Mesh"], answer: 1, explanation: "Topologi Bus menggunakan kabel utama (backbone) tunggal yang menghubungkan semua node." },
+        { q: "Protokol standar yang digunakan untuk mengkonfigurasi IP address secara otomatis pada client adalah...", options: ["DNS", "DHCP", "FTP", "HTTP"], answer: 1, explanation: "DHCP (Dynamic Host Configuration Protocol) membagikan alamat IP otomatis kepada perangkat." },
+        { q: "Urutan standar susunan warna kabel UPT T568B untuk pin 1 hingga 3 secara berurutan adalah...", options: ["Putih Oranye, Oranye, Putih Hijau", "Putih Hijau, Hijau, Putih Oranye", "Oranye, Putih Oranye, Hijau", "Putih Biru, Biru, Putih Hijau"], answer: 0, explanation: "Standar T568B: 1. Putih Oranye, 2. Oranye, 3. Putih Hijau, 4. Biru, 5. Putih Biru, 6. Hijau, 7. Putih Cokelat, 8. Cokelat." }
+      ]
+    };
+
+    /* CATEGORY METADATA CONFIGURATION */
+    const CATEGORIES = [
+      { id: 'matematika', name: 'Matematika', icon: 'fa-calculator', color: 'from-blue-600 to-cyan-500', desc: 'Eksponen, Logaritma, Persamaan Kuadrat & Trigonometri.' },
+      { id: 'bahasa_indonesia', name: 'Bahasa Indonesia', icon: 'fa-book-open-reader', color: 'from-amber-600 to-orange-500', desc: 'Teks LHO, Eksposisi, Anekdot & Tata Bahasa.' },
+      { id: 'bahasa_inggris', name: 'Bahasa Inggris', icon: 'fa-language', color: 'from-purple-600 to-indigo-500', desc: 'Grammar, Tenses, Vocabulary & Reading Caption.' },
+      { id: 'informatika', name: 'Informatika', icon: 'fa-code', color: 'from-emerald-600 to-teal-500', desc: 'Algoritma, Pemrograman, Tipe Data & Komputasi.' },
+      { id: 'ipas', name: 'IPAS / IPA', icon: 'fa-flask', color: 'from-green-600 to-emerald-400', desc: 'Respirasi Sel, Hukum Newton, Simbiosis & Kimia.' },
+      { id: 'ips', name: 'IPS', icon: 'fa-earth-americas', color: 'from-rose-600 to-pink-500', desc: 'Kelangkaan Ekonomi, Akulturasi & Mobilitas Sosial.' },
+      { id: 'pendidikan_pancasila', name: 'Pendidikan Pancasila', icon: 'fa-landmark', color: 'from-red-600 to-amber-600', desc: 'Sila Pancasila, UUD 1945 & Demokrasi.' },
+      { id: 'sejarah_indonesia', name: 'Sejarah Indonesia', icon: 'fa-monument', color: 'from-yellow-600 to-amber-700', desc: 'Kerajaan Nusantara, Proklamasi & Kemerdekaan.' },
+      { id: 'pai', name: 'Pendidikan Agama Islam', icon: 'fa-mosque', color: 'from-teal-600 to-cyan-600', desc: 'Rukun Iman, Malaikat, Tajwid & Hukum Islam.' },
+      { id: 'bahasa_jawa', name: 'Bahasa Jawa', icon: 'fa-scroll', color: 'from-orange-700 to-amber-800', desc: 'Unggah-Ungguh Basa, Sandhangan & Aksara Jawa.' },
+      { id: 'pengetahuan_umum', name: 'Pengetahuan Umum', icon: 'fa-globe', color: 'from-sky-600 to-blue-700', desc: 'Geografi Dunia, Tokoh Nasional & Wawasan Umum.' },
+      { id: 'jaringan_komputer', name: 'Jaringan Komputer', icon: 'fa-network-wired', color: 'from-indigo-600 to-blue-600', desc: 'IPv4, Router, Topologi & Pengabelan UTP.' }
+    ];
+
+    /* ==========================================================================
+       2. AUDIO SYNTHESIZER (WEB AUDIO API - NO EXTERNAL ASSETS NEEDED)
+       ========================================================================== */
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.setValueAtTime(140, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('soundIcon');
+      if (soundEnabled) {
+        icon.className = 'fa-solid fa-volume-high text-brand-accent';
+      } else {
+        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+      }
+    }
+
+    /* ==========================================================================
+       3. APP STATE & NAVIGATION LOGIC
+       ========================================================================== */
+    let currentQuizState = {
+      subjectId: '',
+      mode: 'challenge',
+      difficulty: 'sedang',
+      totalCount: 10,
+      questions: [],
+      currentIndex: 0,
+      score: 0,
+      correctCount: 0,
+      incorrectCount: 0,
+      unansweredCount: 0,
+      timer: null,
+      timeLeft: 20,
+      answered: false
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategoryCards();
+      loadOverviewStats();
+      renderHistoryTable();
+    });
+
+    function navigateTo(section) {
+      playSound('click');
+      document.getElementById('homeSection').classList.add('hidden');
+      document.getElementById('quizSection').classList.add('hidden');
+      document.getElementById('resultSection').classList.add('hidden');
+      document.getElementById('statsSection').classList.add('hidden');
+
+      if (section === 'home') {
+        document.getElementById('homeSection').classList.remove('hidden');
+        loadOverviewStats();
+      } else if (section === 'stats') {
+        document.getElementById('statsSection').classList.remove('hidden');
+        renderHistoryTable();
+      }
+    }
+
+    function scrollToGuide() {
+      navigateTo('home');
+      document.getElementById('guideSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* ==========================================================================
+       4. CATEGORY RENDER & FILTERING
+       ========================================================================== */
+    function renderCategoryCards(filterText = '') {
+      const grid = document.getElementById('categoryGrid');
+      grid.innerHTML = '';
+
+      const filtered = CATEGORIES.filter(cat => 
+        cat.name.toLowerCase().includes(filterText.toLowerCase()) ||
+        cat.desc.toLowerCase().includes(filterText.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-sm">Mata pelajaran tidak ditemukan...</div>`;
+        return;
+      }
+
+      filtered.forEach(cat => {
+        const qBank = QUESTION_BANK[cat.id] || [];
+        const card = document.createElement('div');
+        card.className = 'glass-card glass-card-hover rounded-2xl p-5 border border-slate-800 flex flex-col justify-between cursor-pointer space-y-4';
+        card.onclick = () => openConfigModal(cat.id);
+
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-tr ${cat.color} text-white flex items-center justify-center text-lg shadow-md">
+                <i class="fa-solid ${cat.icon}"></i>
+              </div>
+              <span class="text-[10px] px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700">
+                ${qBank.length} Soal
+              </span>
+            </div>
+            <div>
+              <h4 class="font-bold text-white text-base leading-snug">${cat.name}</h4>
+              <p class="text-slate-400 text-xs mt-1 leading-relaxed line-clamp-2">${cat.desc}</p>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-brand-lightBlue">
+            <span>Mulai Kuis</span>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterCategories() {
+      const query = document.getElementById('searchInput').value;
+      renderCategoryCards(query);
+    }
+
+    /* ==========================================================================
+       5. CONFIGURATION MODAL LOGIC
+       ========================================================================== */
+    let selectedCatForConfig = null;
+
+    function openConfigModal(subjectId) {
+      playSound('click');
+      const cat = CATEGORIES.find(c => c.id === subjectId);
+      if (!cat) return;
+
+      selectedCatForConfig = cat;
+      document.getElementById('modalSubjectTitle').innerText = cat.name;
+      document.getElementById('modalSubjectIcon').innerHTML = `<i class="fa-solid ${cat.icon}"></i>`;
+      
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+
+    function closeConfigModal() {
+      playSound('click');
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    /* ==========================================================================
+       6. QUIZ GAMEPLAY CORE ENGINE
+       ========================================================================== */
+    function startQuiz(event) {
+      event.preventDefault();
+      playSound('click');
+
+      const formData = new FormData(event.target);
+      const mode = formData.get('gameMode');
+      const difficulty = formData.get('difficulty');
+      const count = parseInt(formData.get('questionCount'));
+
+      const bank = QUESTION_BANK[selectedCatForConfig.id] || [];
+      if (bank.length === 0) {
+        alert("Bank soal untuk mata pelajaran ini belum tersedia.");
+        return;
+      }
+
+      // Shuffle and prepare questions (duplicate elements if count requested > bank size)
+      let preparedQuestions = [];
+      while (preparedQuestions.length < count) {
+        let shuffled = [...bank].sort(() => 0.5 - Math.random());
+        preparedQuestions = preparedQuestions.concat(shuffled);
+      }
+      preparedQuestions = preparedQuestions.slice(0, count);
+
+      // Deep copy and shuffle option choices
+      preparedQuestions = preparedQuestions.map(q => {
+        let optionsWithIdx = q.options.map((opt, idx) => ({ text: opt, isCorrect: idx === q.answer }));
+        optionsWithIdx.sort(() => 0.5 - Math.random());
+        
+        return {
+          questionText: q.q,
+          options: optionsWithIdx.map(o => o.text),
+          correctIndex: optionsWithIdx.findIndex(o => o.isCorrect),
+          explanation: q.explanation
+        };
+      });
+
+      // Init Quiz State
+      currentQuizState = {
+        subjectId: selectedCatForConfig.id,
+        subjectName: selectedCatForConfig.name,
+        mode: mode,
+        difficulty: difficulty,
+        totalCount: count,
+        questions: preparedQuestions,
+        currentIndex: 0,
+        score: 0,
+        correctCount: 0,
+        incorrectCount: 0,
+        unansweredCount: 0,
+        timer: null,
+        timeLeft: difficulty === 'mudah' ? 25 : difficulty === 'sedang' ? 20 : 15,
+        baseTime: difficulty === 'mudah' ? 25 : difficulty === 'sedang' ? 20 : 15,
+        answered: false
+      };
+
+      closeConfigModal();
+      document.getElementById('homeSection').classList.add('hidden');
+      document.getElementById('quizSection').classList.remove('hidden');
+
+      document.getElementById('quizSubjectBadge').innerText = selectedCatForConfig.name;
+      document.getElementById('quizDifficultyBadge').innerText = difficulty.toUpperCase();
+      document.getElementById('totalQuestionsNum').innerText = count;
+
+      if (mode === 'practice') {
+        document.getElementById('timerContainer').classList.add('hidden');
+      } else {
+        document.getElementById('timerContainer').classList.remove('hidden');
+      }
+
+      loadQuestion(0);
+    }
+
+    function loadQuestion(index) {
+      clearInterval(currentQuizState.timer);
+      currentQuizState.answered = false;
+      currentQuizState.currentIndex = index;
+
+      const qData = currentQuizState.questions[index];
+
+      // Update UI Header Progress
+      document.getElementById('currentQuestionNum').innerText = index + 1;
+      const progressPercent = ((index + 1) / currentQuizState.totalCount) * 100;
+      document.getElementById('quizProgressBar').style.width = `${progressPercent}%`;
+
+      // Question & Explanation Reset
+      document.getElementById('questionText').innerText = qData.questionText;
+      document.getElementById('explanationBox').classList.add('hidden');
+
+      // Reset Next Button State
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = true;
+      nextBtn.className = "px-6 py-3 rounded-xl bg-slate-800 text-slate-500 font-bold text-sm cursor-not-allowed transition flex items-center gap-2";
+      nextBtn.innerHTML = index === currentQuizState.totalCount - 1 ? '<span>Selesai</span> <i class="fa-solid fa-check"></i>' : '<span>Soal Berikutnya</span> <i class="fa-solid fa-arrow-right"></i>';
+
+      // Render Options A, B, C, D
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      qData.options.forEach((optText, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full text-left p-4 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs sm:text-sm font-medium transition flex items-center gap-3 group';
+        btn.onclick = () => selectOption(i);
+        btn.id = `optionBtn_${i}`;
+
+        btn.innerHTML = `
+          <span class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 font-bold flex items-center justify-center text-xs group-hover:border-brand-lightBlue transition shrink-0">
+            ${letters[i]}
+          </span>
+          <span class="flex-grow">${optText}</span>
+          <i class="statusIcon fa-solid hidden"></i>
+        `;
+        container.appendChild(btn);
+      });
+
+      // Start Timer in Challenge Mode
+      if (currentQuizState.mode === 'challenge') {
+        currentQuizState.timeLeft = currentQuizState.baseTime;
+        document.getElementById('timerDisplay').innerText = `${currentQuizState.timeLeft}s`;
+        
+        currentQuizState.timer = setInterval(() => {
+          currentQuizState.timeLeft--;
+          document.getElementById('timerDisplay').innerText = `${currentQuizState.timeLeft}s`;
+
+          if (currentQuizState.timeLeft <= 0) {
+            clearInterval(currentQuizState.timer);
+            handleTimeOut();
+          }
+        }, 1000);
+      }
+    }
+
+    function selectOption(selectedIndex) {
+      if (currentQuizState.answered) return;
+      currentQuizState.answered = true;
+      clearInterval(currentQuizState.timer);
+
+      const qData = currentQuizState.questions[currentQuizState.currentIndex];
+      const isCorrect = selectedIndex === qData.correctIndex;
+
+      // Sound feedback
+      playSound(isCorrect ? 'correct' : 'wrong');
+
+      if (isCorrect) {
+        currentQuizState.correctCount++;
+      } else {
+        currentQuizState.incorrectCount++;
+      }
+
+      highlightOptions(selectedIndex, qData.correctIndex);
+      showExplanation(qData.explanation);
+      enableNextButton();
+    }
+
+    function handleTimeOut() {
+      if (currentQuizState.answered) return;
+      currentQuizState.answered = true;
+      currentQuizState.unansweredCount++;
+      playSound('wrong');
+
+      const qData = currentQuizState.questions[currentQuizState.currentIndex];
+      highlightOptions(-1, qData.correctIndex);
+      showExplanation(`Waktu habis! ${qData.explanation}`);
+      enableNextButton();
+    }
+
+    function highlightOptions(selectedIndex, correctIndex) {
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`optionBtn_${i}`);
+        if (!btn) continue;
+        btn.onclick = null; // Disable further clicks
+        btn.classList.remove('hover:bg-slate-700/80');
+
+        const icon = btn.querySelector('.statusIcon');
+
+        if (i === correctIndex) {
+          btn.className = "w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-500/20 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-3";
+          if (icon) {
+            icon.className = "statusIcon fa-solid fa-circle-check text-emerald-400 text-base block";
+          }
+        } else if (i === selectedIndex && selectedIndex !== correctIndex) {
+          btn.className = "w-full text-left p-4 rounded-xl border border-rose-500 bg-rose-500/20 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-3";
+          if (icon) {
+            icon.className = "statusIcon fa-solid fa-circle-xmark text-rose-400 text-base block";
+          }
+        } else {
+          btn.classList.add('opacity-40');
+        }
+      }
+    }
+
+    function showExplanation(text) {
+      const expBox = document.getElementById('explanationBox');
+      document.getElementById('explanationText').innerText = text;
+      expBox.classList.remove('hidden');
+    }
+
+    function enableNextButton() {
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = false;
+      nextBtn.className = "px-6 py-3 rounded-xl bg-gradient-to-r from-brand-blue to-brand-purple hover:from-blue-600 hover:to-purple-600 text-white font-bold text-sm transition shadow-lg shadow-blue-500/20 flex items-center gap-2 cursor-pointer";
+    }
+
+    function handleNextQuestion() {
+      playSound('click');
+      if (currentQuizState.currentIndex < currentQuizState.totalCount - 1) {
+        loadQuestion(currentQuizState.currentIndex + 1);
+      } else {
+        finishQuiz();
+      }
+    }
+
+    /* ==========================================================================
+       7. RESULTS & SCORE LOGIC
+       ========================================================================== */
+    function finishQuiz() {
+      clearInterval(currentQuizState.timer);
+
+      const total = currentQuizState.totalCount;
+      const correct = currentQuizState.correctCount;
+      const percentScore = Math.round((correct / total) * 100);
+
+      // Determine Badge Rating
+      let badge = 'Pemula';
+      let motivational = 'Tetap semangat! Terus latih pemahamanmu dengan mencoba kuis ini kembali.';
+      let iconClass = 'fa-seedling';
+
+      if (percentScore >= 90) {
+        badge = 'Master';
+        motivational = 'Sempurna! Kamu telah menguasai materi ini dengan sangat tinggi!';
+        iconClass = 'fa-crown';
+      } else if (percentScore >= 75) {
+        badge = 'Hebat';
+        motivational = 'Luar biasa! Pemahaman materi kamu sudah sangat baik!';
+        iconClass = 'fa-award';
+      } else if (percentScore >= 55) {
+        badge = 'Berkembang';
+        motivational = 'Cukup baik! Tingkatkan lagi latihan soal untuk hasil lebih optimal.';
+        iconClass = 'fa-medal';
+      }
+
+      // Render Result UI
+      document.getElementById('resSubject').innerText = `${currentQuizState.subjectName} - ${currentQuizState.difficulty.toUpperCase()}`;
+      document.getElementById('resGradeTitle').innerText = badge === 'Master' || badge === 'Hebat' ? 'Luar Biasa!' : 'Kuis Selesai!';
+      document.getElementById('resMotivationalMessage').innerText = motivational;
+      document.getElementById('resScorePercent').innerText = `${percentScore}%`;
+      document.getElementById('resBadgeText').innerText = badge;
+      document.getElementById('badgeIcon').className = `fa-solid ${iconClass}`;
+
+      document.getElementById('resCorrectCount').innerText = currentQuizState.correctCount;
+      document.getElementById('resIncorrectCount').innerText = currentQuizState.incorrectCount;
+      document.getElementById('resUnansweredCount').innerText = currentQuizState.unansweredCount;
+
+      // Save Record to LocalStorage
+      saveHistoryRecord({
+        date: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
+        subjectName: currentQuizState.subjectName,
+        mode: currentQuizState.mode === 'challenge' ? 'Tantangan' : 'Latihan',
+        difficulty: currentQuizState.difficulty,
+        score: percentScore,
+        badge: badge
+      });
+
+      document.getElementById('quizSection').classList.add('hidden');
+      document.getElementById('resultSection').classList.remove('hidden');
+    }
+
+    function restartCurrentQuiz() {
+      playSound('click');
+      document.getElementById('resultSection').classList.add('hidden');
+      // Trigger config again
+      openConfigModal(currentQuizState.subjectId);
+    }
+
+    function confirmExitQuiz() {
+      playSound('click');
+      document.getElementById('confirmExitModal').classList.remove('hidden');
+    }
+
+    function closeExitModal() {
+      playSound('click');
+      document.getElementById('confirmExitModal').classList.add('hidden');
+    }
+
+    function forceExitQuiz() {
+      playSound('click');
+      clearInterval(currentQuizState.timer);
+      closeExitModal();
+      navigateTo('home');
+    }
+
+    /* ==========================================================================
+       8. LOCALSTORAGE STATS & HISTORY MANAGEMENT
+       ========================================================================== */
+    const STORAGE_KEY = 'EDUQUIZ_HISTORY_V1';
+
+    function getHistoryRecords() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveHistoryRecord(record) {
+      const records = getHistoryRecords();
+      records.unshift(record); // newest first
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function clearHistory() {
+      playSound('click');
+      if (confirm("Apakah kamu yakin ingin menghapus seluruh riwayat kuis?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderHistoryTable();
+        loadOverviewStats();
+      }
+    }
+
+    function loadOverviewStats() {
+      const records = getHistoryRecords();
+      if (records.length === 0) {
+        document.getElementById('statBestScore').innerText = '0%';
+        document.getElementById('statTotalPlayed').innerText = '0 Kuis';
+        document.getElementById('statAvgScore').innerText = '0%';
+        return;
+      }
+
+      const totalPlayed = records.length;
+      const bestScore = Math.max(...records.map(r => r.score));
+      const avgScore = Math.round(records.reduce((acc, r) => acc + r.score, 0) / totalPlayed);
+
+      document.getElementById('statBestScore').innerText = `${bestScore}%`;
+      document.getElementById('statTotalPlayed').innerText = `${totalPlayed} Kuis`;
+      document.getElementById('statAvgScore').innerText = `${avgScore}%`;
+    }
+
+    function renderHistoryTable() {
+      const records = getHistoryRecords();
+      const tbody = document.getElementById('historyTableBody');
+      const emptyMsg = document.getElementById('emptyHistoryMsg');
+
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+
+      records.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 transition";
+        tr.innerHTML = `
+          <td class="p-4 text-slate-400 text-xs">${r.date}</td>
+          <td class="p-4 font-bold text-white">${r.subjectName}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700">${r.mode} (${r.difficulty})</span></td>
+          <td class="p-4 font-black text-brand-lightBlue">${r.score}%</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-semibold border border-purple-500/30 text-[10px]">${r.badge}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
